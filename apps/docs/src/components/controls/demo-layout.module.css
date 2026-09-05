@@ -33,9 +33,13 @@
   max-height: min(calc(var(--stage-width) * 2 / 3), calc(100vh - var(--spacing-12)));
 }
 
+/* Carries the panel's corner radius so the panel's sticky title row, which
+   sits at this element's top edge once the panel has scrolled, is clipped
+   to the same rounded corners the panel itself has. */
 .scroller {
   max-height: inherit;
   overflow-y: auto;
+  border-radius: var(--radius-xl);
 }
 
 /* The mock's "reveal": 64px of the panel's own color fading upward over its
