@@ -200,22 +200,56 @@
 
 /* ---- Number readout ---- */
 
-.numberInput {
+/* The box carries the chrome and the focus ring; the input inside is bare,
+   so a unit can sit beside the digits without breaking the box's edge. */
+.numberBox {
+  display: flex;
+  flex: none;
+  align-items: center;
   width: 2.5rem;
   height: var(--spacing-6);
-  padding: 0 var(--spacing-1);
   background: var(--gray-800);
-  color: var(--fg);
   border: var(--border-width-1) solid var(--white-a5);
   border-radius: var(--radius-sm);
+}
+
+.numberBox:has(:focus-visible) {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The mock's percent field: 48px, digits on the left, the unit in gray.
+   6px of side padding rather than the mock's 8 so "100" and "%" both fit. */
+.numberBoxWithUnit {
+  gap: var(--spacing-px);
+  width: 3rem;
+  padding: 0 var(--spacing-1-5);
+}
+
+.numberInput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--spacing-1);
+  background: transparent;
+  color: var(--fg);
+  border: 0;
   font: inherit;
   font-variant-numeric: tabular-nums;
   text-align: center;
+  outline: none;
 }
 
-.numberInput:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 1px;
+.numberBoxWithUnit .numberInput {
+  width: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.numberUnit {
+  flex: none;
+  color: var(--gray-200);
 }
 
 /* ---- Select ---- */
@@ -290,30 +324,48 @@
 
 /* ---- Color picker ---- */
 
+/* One button drawn as two boxes, the swatch and the printed value, so the
+   focus ring wraps both and either one opens the popover. */
 .swatchTrigger {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: 0.5rem;
-  grid-column: 2 / -1;
-  padding: 0.25rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  gap: var(--spacing-1);
+  padding: 0;
+  background: transparent;
+  color: var(--fg);
+  border: 0;
+  border-radius: var(--radius-sm);
   font: inherit;
-  color: var(--fg-muted);
   cursor: pointer;
 }
 
-.swatch {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 0.25rem;
+.swatchTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 
+.swatch {
+  flex: none;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+}
+
+/* The oklch() string is longer than 80px allows, so it clips with an
+   ellipsis; the full value is in the popover's text field. */
 .swatchValue {
-  font-size: 0.75rem;
+  display: block;
+  width: 5rem;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  line-height: calc(var(--spacing-6) - 2 * var(--border-width-1));
   font-variant-numeric: tabular-nums;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -447,70 +499,40 @@
 
 /* ---- Repeatable lists ---- */
 
-.button {
-  padding: 0.35rem 0.5rem;
-  background: var(--bg);
+/* The mock sets list headers ("Stops", "Lines") in white where plain group
+   headers ("Motion") are gray-50. */
+.listTitle {
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  font: inherit;
-  cursor: pointer;
-}
-
-.button:hover:not(:disabled) {
-  border-color: var(--accent);
-}
-
-.button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.listCount {
-  color: var(--fg-muted);
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* One 24px line: the row's name takes the slack on the left, its controls
+   and the remove button sit against the right edge. */
 .listRow {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.5rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-}
-
-.listRowHeader {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  color: var(--fg-muted);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
 }
 
-.listRemove {
-  padding: 0.1rem 0.4rem;
-  background: transparent;
+.rowLabel {
+  flex: 1;
+  min-width: 0;
   color: var(--fg-muted);
-  border: 1px solid var(--border);
-  border-radius: 0.25rem;
-  font: inherit;
-  font-size: 0.7rem;
-  cursor: pointer;
+  text-transform: capitalize;
 }
 
-.listRemove:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+/* A list nested inside a row (wave-lines' Colors inside each line) takes
+   the whole next line rather than squeezing beside the row's name. */
+.listRow > .section {
+  flex-basis: 100%;
 }

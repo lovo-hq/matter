@@ -1,30 +1,28 @@
 'use client';
 
 /**
- * A variable-length list of anything — gradient stops, palette colors, wave
- * lines. Rows wrap their children in a path prefix, so path="color" inside row
- * 2 lands on stops[2].color without knowing its index — and lets lists nest.
- * Subscribes to the array's length only: a nested write rebuilds the whole
- * array's identity, so reading the array itself here would re-render every row.
+ * A variable-length list of anything: gradient stops, palette colors, wave
+ * lines. Rows wrap their children in a path prefix, so path="color" inside
+ * row 2 lands on stops[2].color without knowing its index, and lets lists
+ * nest. Subscribes to the array's length only: a nested write rebuilds the
+ * whole array's identity, so reading the array itself here would re-render
+ * every row.
+ *
+ * Each row is one 24px line, the mock's layout: the row's name, then its
+ * controls in their compact form, then a remove button, with an add button
+ * up in the list's header. Controls learn they are inside a row from the
+ * row trail (see context.tsx) and drop their own visible labels, since the
+ * row already names them.
  */
-import { createContext, type ReactNode, useContext, useId } from 'react';
+import { type ReactNode, useId } from 'react';
 
-import { PathPrefixProvider, useControlStore } from './context';
+import { MinusIcon } from '@/components/icons/minus';
+import { PlusIcon } from '@/components/icons/plus';
+
+import { ListRowProvider, PathPrefixProvider, useControlStore, useListRowTrail } from './context';
 import styles from './controls.module.css';
 import { normalizePath, type PathInput } from './store';
 import { usePropValue, useResolvedPath, useSetProp } from './useControl';
-
-/**
- * Ambient trail of ancestor row labels ("line 5") so a nested list's add/remove
- * buttons can name which parent row they belong to. Without this, every line's
- * Colors list produces buttons reading plain "Remove stop 1" -- identical text
- * repeated across all 8 lines, which a screen reader has no other way to tell apart.
- * Only rows contribute to this trail (never a list's own heading label) — a
- * nested list qualifies its buttons from the row it lives in ("line 5"), not
- * from its own heading ("Colors"), so the two don't double up into "stop 2
- * from Colors from line 5".
- */
-const ListBreadcrumbContext = createContext<readonly string[]>([]);
 
 export interface ListInputProps<TItem> {
   path: PathInput;
@@ -37,12 +35,12 @@ export interface ListInputProps<TItem> {
   /** Builds the next item, given the current list. Usually clones the last one. */
   createItem: (items: readonly TItem[]) => TItem;
   /**
-   * Where the new item lands, given the current list. Defaults to appending —
+   * Where the new item lands, given the current list. Defaults to appending;
    * lists whose items must stay ordered (e.g. gradient stops with a closing
    * end stop) use this to insert mid-list instead.
    */
   insertIndex?: (items: readonly TItem[]) => number;
-  /** Singular noun for row headings and button labels. Defaults to "item". */
+  /** Singular noun for row names and button labels. Defaults to "item". */
   itemLabel?: string;
   children: (index: number) => ReactNode;
 }
@@ -61,7 +59,7 @@ export function ListInput<TItem>({
   const setProp = useSetProp();
   const resolvedPath = useResolvedPath(path);
   const segments = normalizePath(path);
-  const ancestorBreadcrumb = useContext(ListBreadcrumbContext);
+  const ancestorTrail = useListRowTrail();
   const headingId = useId();
 
   // The only reactive read in this component. Writing any nested field (e.g.
@@ -102,23 +100,34 @@ export function ListInput<TItem>({
   // falls back to its own heading -- otherwise sibling lists like mesh-
   // gradient's "Palette A" and "Palette B" would produce identical button
   // names ("Add color", "Remove color 1") with nothing to tell them apart.
-  const qualifier = ancestorBreadcrumb.length > 0 ? ancestorBreadcrumb.join(' > ') : label;
+  const qualifier = ancestorTrail.length > 0 ? ancestorTrail.join(' > ') : label;
 
   const addLabel = `Add ${itemLabel}`;
   const addAriaLabel = `${addLabel} to ${qualifier}`;
 
   // A fixed-size list (min === max, e.g. mesh-gradient's two 4-color
-  // palettes) has no legal add/remove — rendering permanently-disabled
+  // palettes) has no legal add/remove. Rendering permanently-disabled
   // buttons would just be dead affordances, so skip them entirely.
   const fixedSize = min === max;
 
   return (
     <div aria-labelledby={headingId} className={styles.section} role="group">
       <div className={styles.sectionHeader}>
-        <p className={styles.sectionTitle} id={headingId}>
+        <p className={`${styles.sectionTitle} ${styles.listTitle}`} id={headingId}>
           {label}
         </p>
-        <span className={styles.listCount}>{`${count} / ${max}`}</span>
+        {!fixedSize && (
+          <button
+            aria-label={addAriaLabel}
+            className={styles.iconButton}
+            disabled={count >= max}
+            onClick={add}
+            title={addLabel}
+            type="button"
+          >
+            <PlusIcon />
+          </button>
+        )}
       </div>
       <ul className={styles.list}>
         {/* Rows are positional, not identity-keyed: removing row 1 genuinely
@@ -132,46 +141,28 @@ export function ListInput<TItem>({
 
           return (
             <li className={styles.listRow} key={index}>
-              <div className={styles.listRowHeader}>
-                <span>{ownLabel}</span>
-                {!fixedSize && (
-                  <button
-                    aria-label={removeAriaLabel}
-                    className={styles.listRemove}
-                    disabled={count <= min}
-                    onClick={() => removeAt(index)}
-                    type="button"
-                  >
-                    {removeLabel}
-                  </button>
-                )}
-              </div>
+              <span className={styles.rowLabel}>{ownLabel}</span>
               <PathPrefixProvider segments={[...segments, index]}>
-                {/* Inline value on purpose: the demo control panel is
-                    deliberately unmemoized (see the control-store gotcha in
-                    AGENTS.md) — every row already re-renders on any panel
-                    write, so a memoized breadcrumb array would change
-                    nothing, and hooks can't be called inside this map. */}
-                {/* react-doctor-disable-next-line react-doctor/jsx-no-constructed-context-values */}
-                <ListBreadcrumbContext.Provider value={[...ancestorBreadcrumb, ownLabel]}>
+                <ListRowProvider trail={[...ancestorTrail, ownLabel]}>
                   {children(index)}
-                </ListBreadcrumbContext.Provider>
+                </ListRowProvider>
               </PathPrefixProvider>
+              {!fixedSize && (
+                <button
+                  aria-label={removeAriaLabel}
+                  className={styles.iconButton}
+                  disabled={count <= min}
+                  onClick={() => removeAt(index)}
+                  title={removeLabel}
+                  type="button"
+                >
+                  <MinusIcon />
+                </button>
+              )}
             </li>
           );
         })}
       </ul>
-      {!fixedSize && (
-        <button
-          aria-label={addAriaLabel}
-          className={styles.button}
-          disabled={count >= max}
-          onClick={add}
-          type="button"
-        >
-          {addLabel}
-        </button>
-      )}
     </div>
   );
 }

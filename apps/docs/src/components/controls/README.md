@@ -7,8 +7,8 @@ the same four-part shape:
    in `three/webgpu`, which references `self` at module load.
 2. **A `*Demo` component** — reads the whole params object with `useSnapshot()` and passes it
    into the scene. This is the one place a full-object subscription belongs.
-3. **A `*Controls` component** — the JSX tree of `<SliderInput>`/`<SelectInput>`/`<ColorInput>`/
-   `<ListInput>` inside `<ControlPanel>`. It never calls `useSnapshot()` or reads params itself;
+3. **A `*Controls` component** — the JSX tree of `<SliderInput>`/`<NumberInput>`/`<SelectInput>`/
+   `<ColorInput>`/`<ListInput>` inside `<ControlPanel>`. It never calls `useSnapshot()` or reads params itself;
    each control subscribes to its own leaf path independently via `usePropValue`.
 4. **The `*Island` export** — creates the store with `useMemo(() => createControlStore(INITIAL), [])`
    and wraps both `*Demo` and `*Controls` in one `<ControlsProvider store={store}>` inside

@@ -1,16 +1,19 @@
 'use client';
 
 /**
- * A number prop: a draggable track plus an editable readout. Base UI's Slider
+ * A number prop: a draggable bar plus an editable readout. Base UI's Slider
  * handles pointer capture, arrow-key stepping, Page Up/Down (largeStep), and
- * the ARIA value attributes; NumberField handles typed entry and clamping.
- * onValueChange fires continuously through a drag, which is fine here — numeric
- * props travel through stable uniform nodes on the GPU side and cost nothing per frame.
+ * the ARIA value attributes; NumberReadout handles typed entry and clamping.
+ * onValueChange fires continuously through a drag, which is fine here: numeric
+ * props travel through stable uniform nodes on the GPU side and cost nothing
+ * per frame. Inside a list row the visible label drops away, since the row
+ * already names the control.
  */
-import { NumberField } from '@base-ui/react/number-field';
 import { Slider } from '@base-ui/react/slider';
 
+import { useListRowTrail } from './context';
 import styles from './controls.module.css';
+import { decimalsForStep, NumberReadout } from './NumberReadout';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
@@ -28,10 +31,6 @@ export interface SliderInputProps {
   decimals?: number;
 }
 
-/** 0.05 -> 2, 1 -> 0. Matches the readout's decimal places to what `step` implies. */
-const decimalsForStep = (step: number) =>
-  step >= 1 ? 0 : Math.min(4, Math.ceil(-Math.log10(step)));
-
 export function SliderInput({
   path,
   label,
@@ -43,10 +42,12 @@ export function SliderInput({
 }: SliderInputProps) {
   const value = usePropValue<number>(path);
   const setProp = useSetProp();
+  const trail = useListRowTrail();
+  const inRow = trail.length > 0;
 
-  // A ceiling only, no floor: the 40px readout shows 1 as "1" and 0.35 as
-  // "0.35", the way the mock writes them, rather than padding every value to
-  // "1.00". Typed entry still rounds to the same number of places.
+  // "Speed for line 2" rather than a bare "Speed" repeated on every row, so
+  // a screen reader can tell the fields apart.
+  const name = inRow ? `${label} for ${trail.join(' > ')}` : label;
   const fractionDigits = decimals ?? decimalsForStep(step);
   const format: Intl.NumberFormatOptions = { maximumFractionDigits: fractionDigits };
 
@@ -69,7 +70,7 @@ export function SliderInput({
         thumbAlignment="edge"
         value={value}
       >
-        <Slider.Label className={styles.fieldLabel}>{label}</Slider.Label>
+        <Slider.Label className={inRow ? styles.srOnly : styles.fieldLabel}>{name}</Slider.Label>
         <Slider.Control className={styles.sliderControl}>
           <Slider.Track className={styles.sliderTrack}>
             <Slider.Indicator className={styles.sliderIndicator} />
@@ -77,20 +78,16 @@ export function SliderInput({
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
-      <NumberField.Root
-        format={format}
+      <NumberReadout
+        ariaLabel={`${name} value`}
+        decimals={fractionDigits}
+        largeStep={largeStep ?? step * 10}
         max={max}
         min={min}
-        onValueChange={(next) => {
-          if (next !== null) commit(next);
-        }}
+        onCommit={commit}
         step={step}
         value={value}
-      >
-        <NumberField.Group>
-          <NumberField.Input aria-label={`${label} value`} className={styles.numberInput} />
-        </NumberField.Group>
-      </NumberField.Root>
+      />
     </div>
   );
 }

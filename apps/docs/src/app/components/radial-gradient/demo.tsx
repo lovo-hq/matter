@@ -18,6 +18,7 @@ import {
   DemoLayout,
   HUE_ARC_OPTIONS,
   ListInput,
+  NumberInput,
   Section,
   SelectInput,
   SliderInput,
@@ -77,7 +78,15 @@ function RadialGradientControls() {
         {() => (
           <>
             <ColorInput label="Color" path="color" />
-            <SliderInput label="Position" max={1} min={0} path="position" step={0.01} />
+            <NumberInput
+              label="Position"
+              max={1}
+              min={0}
+              path="position"
+              scale={100}
+              step={0.01}
+              unit="%"
+            />
           </>
         )}
       </ListInput>
