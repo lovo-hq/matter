@@ -201,7 +201,9 @@
 /* ---- Number readout ---- */
 
 /* The box carries the chrome and the focus ring; the input inside is bare,
-   so a unit can sit beside the digits without breaking the box's edge. */
+   so a unit can sit beside the digits without breaking the box's edge. The
+   box is Base UI's scrub area too, hence the sideways-resize cursor: drag
+   to slide the value, click to type. */
 .numberBox {
   display: flex;
   flex: none;
@@ -211,6 +213,7 @@
   background: var(--gray-800);
   border: var(--border-width-1) solid var(--white-a5);
   border-radius: var(--radius-sm);
+  cursor: ew-resize;
 }
 
 .numberBox:has(:focus-visible) {
@@ -238,7 +241,29 @@
   font: inherit;
   font-variant-numeric: tabular-nums;
   text-align: center;
+  cursor: inherit;
   outline: none;
+}
+
+/* Once the input has focus the reader is typing, so the caret cursor
+   returns; a drag from here still scrubs. */
+.numberInput:focus {
+  cursor: text;
+}
+
+/* The stand-in pointer while the real one is locked during a scrub. Base UI
+   positions it with a transform; this only gives it a shape and keeps it
+   out of the way of hit-testing. */
+.scrubCursor {
+  display: flex;
+  align-items: center;
+  color: var(--fg);
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px var(--black)) drop-shadow(0 0 1px var(--black));
+}
+
+.scrubCursorLeft {
+  transform: scaleX(-1);
 }
 
 .numberBoxWithUnit .numberInput {

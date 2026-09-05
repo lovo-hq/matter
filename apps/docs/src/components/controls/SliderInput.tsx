@@ -13,7 +13,8 @@ import { Slider } from '@base-ui/react/slider';
 
 import { useListRowTrail } from './context';
 import styles from './controls.module.css';
-import { decimalsForStep, NumberReadout } from './NumberReadout';
+import { decimalsForStep } from './decimals';
+import { NumberReadout } from './NumberReadout';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
