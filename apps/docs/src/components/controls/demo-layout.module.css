@@ -7,6 +7,12 @@
    The horizontal inset comes from the docs shell's main column, so the grid
    pads only vertically. */
 .layout {
+  /* What the shader column resolves to: the 4xl cap, or whatever is left
+     after the controls column and the gap. Mirrors the grid's track sizing
+     below, and the controls column reads it to match the shader's height. */
+  --stage-width: min(var(--container-4xl), calc(100cqw - var(--spacing-4) - var(--container-2xs)));
+
+  container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, var(--container-4xl)) minmax(0, var(--container-2xs));
   gap: var(--spacing-4);
@@ -14,13 +20,17 @@
   padding: var(--spacing-6) 0;
 }
 
-/* Sticks 24px below the top of the viewport and never grows past it. The
-   overflow belongs to the scroller inside, not to this element, so the fade
-   can sit on top of the column without scrolling away with the panel. */
+/* Sticks 24px below the top of the viewport and never grows past the
+   shader beside it, whose height is 3:2 of the column's width (the ratio
+   [data-shader-demo] sets in globals.css), or past the viewport, whichever
+   is shorter. Sized from the grid's width rather than measured, so the cap
+   holds from the first paint with no jump. The overflow belongs to the
+   scroller inside, not to this element, so the fade can sit on top of the
+   column without scrolling away with the panel. */
 .controls {
   position: sticky;
   top: var(--spacing-6);
-  max-height: calc(100vh - var(--spacing-12));
+  max-height: min(calc(var(--stage-width) * 2 / 3), calc(100vh - var(--spacing-12)));
 }
 
 .scroller {

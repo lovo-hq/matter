@@ -187,6 +187,8 @@ a:hover {
   /* Anchors the absolutely-positioned poster and scene layers every demo
      stacks inside this wrapper. */
   position: relative;
+  /* The controls column beside this wrapper caps its own height to match,
+     from the same ratio; see .controls in demo-layout.module.css. */
   aspect-ratio: 3 / 2;
   overflow: hidden;
   isolation: isolate;
