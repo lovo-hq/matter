@@ -316,15 +316,21 @@
 }
 
 /* Portaled to <body>, so it inherits none of the panel's type and sets its
-   own. --anchor-width is set by Base UI's positioner to the trigger's width,
-   which keeps the list flush with the box it opened from. */
+   own. Base UI opens the list with the selected item laid over the trigger,
+   shifting the popup so the item's text sits exactly on the trigger's text.
+   The popup has no padding of its own and takes the trigger's width from
+   --anchor-width, and each item is the trigger's shape (24px tall, 8px side
+   padding), so the selected item lands on the trigger box for box and the
+   whole list reads as the trigger unrolled. */
 .selectPopup {
-  min-width: var(--anchor-width);
-  padding: var(--spacing-1);
+  box-sizing: border-box;
+  width: var(--anchor-width);
+  padding: 0;
+  overflow: hidden;
   background: var(--gray-800);
   color: var(--fg);
   border: var(--border-width-1) solid var(--white-a5);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
   font-size: var(--font-size-xs);
   line-height: var(--leading-4);
@@ -335,7 +341,6 @@
   align-items: center;
   height: var(--spacing-6);
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-sm);
   cursor: pointer;
   outline: none;
 }
