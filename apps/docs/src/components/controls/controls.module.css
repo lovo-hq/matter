@@ -198,21 +198,30 @@
   background: var(--lime-50);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: background-color var(--fade-xs) var(--ease-hover);
+  transition:
+    background-color var(--fade-xs) var(--ease-hover),
+    transform var(--duration-sm) var(--ease-out);
 }
 
-/* The thumb lights up to lime-25 when the pointer is anywhere on the
-   control, not only on the thumb's own 4px, since the whole bar is the hit
-   area. Gated to fine pointers so a tap on touch does not leave it lit. The
-   popover's channel sliders keep their ring thumb out of this. */
+/* The thumb lights up to lime-25 and widens from 4px to 6px when the
+   pointer is anywhere on the control, not only on the thumb's own 4px,
+   since the whole bar is the hit area: the bar is saying it can be dragged.
+   Width only, because the track clips anything taller, and on a 4px thumb
+   a percent or two of scale would be invisible. Base UI positions the thumb
+   with `translate`, a separate property, so the scale composes with it.
+   Hover is gated to fine pointers so a tap on touch does not leave it lit;
+   the drag state below is not, so touch feels the grab too. The popover's
+   channel sliders keep their ring thumb out of both. */
 @media (hover: hover) and (pointer: fine) {
   .sliderControl:hover .sliderThumb:not(.channelThumb) {
     background: var(--lime-25);
+    transform: scaleX(1.5);
   }
 }
 
 .sliderControl[data-dragging] .sliderThumb:not(.channelThumb) {
   background: var(--lime-25);
+  transform: scaleX(1.5);
 }
 
 .sliderTrack:has(:focus-visible) {
