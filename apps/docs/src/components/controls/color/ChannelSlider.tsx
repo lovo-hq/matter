@@ -183,16 +183,20 @@ export function ChannelSlider({
 
   return (
     <Slider.Root
+      className={styles.pickerField}
       max={max}
       min={0}
       onValueChange={(next) => onPreview({ ...color, [channel]: next })}
       onValueCommitted={onCommit}
       step={step}
+      // Keeps the whole 6px thumb inside the track at 0 and at max, instead
+      // of centering it on the edge where half of it would be clipped.
+      thumbAlignment="edge"
       value={color[channel]}
     >
-      <Slider.Label className={styles.fieldLabel}>{label}</Slider.Label>
+      <Slider.Label className={styles.pickerLabel}>{label}</Slider.Label>
       <Slider.Control className={`${styles.sliderControl} ${styles.channelControl}`}>
-        <Slider.Track className={`${styles.sliderTrack} ${styles.channelTrack}`}>
+        <Slider.Track className={styles.sliderTrack}>
           <canvas aria-hidden="true" className={styles.channelCanvas} ref={canvasRef} />
           <Slider.Thumb className={`${styles.sliderThumb} ${styles.channelThumb}`} />
         </Slider.Track>

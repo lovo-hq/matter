@@ -334,6 +334,16 @@
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
   font-size: var(--font-size-xs);
   line-height: var(--leading-4);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform var(--duration-sm) var(--ease-out),
+    opacity var(--fade-sm) var(--ease-out);
+}
+
+.selectPopup[data-starting-style],
+.selectPopup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
 .selectItem {
@@ -401,26 +411,63 @@
   white-space: nowrap;
 }
 
+/* The picker. Its width is the list row minus the remove button, so it
+   spans the row's name, swatch, value, and position field exactly, and it
+   opens from the row's left edge (see ColorInput's anchor). Same gray-900
+   as the panel, so the hairline border and the shadow are what separate
+   the two. */
 .colorPopup {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  width: 15rem;
-  padding: 0.75rem;
+  gap: var(--spacing-3);
+  width: calc(var(--container-2xs) - 2 * var(--spacing-4) - var(--spacing-6) - var(--spacing-1));
+  padding: var(--spacing-2);
   background: var(--bg-muted);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  font-size: var(--font-size-xs);
+  line-height: var(--leading-4);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform var(--duration-sm) var(--ease-out),
+    opacity var(--fade-sm) var(--ease-out);
+}
+
+.colorPopup[data-starting-style],
+.colorPopup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* A label over its control, the picker's stacked layout. */
+.pickerField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.pickerLabel {
+  color: var(--fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pickerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
 }
 
 /* The colour preview. Fixed height in every state: a box that appears and
-   disappears as the colour crosses a gamut edge would resize the panel under a
-   pointer that is mid-drag, which is exactly when it must not move. */
+   disappears as the colour crosses a gamut edge would resize the panel under
+   a pointer that is mid-drag, which is exactly when it must not move. */
 .gamutPreview {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.35rem;
-  height: 3.25rem;
+  gap: var(--spacing-2);
+  height: 60px;
 }
 
 .gamutPreviewSplit {
@@ -431,52 +478,34 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 0.3rem;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  padding: var(--spacing-1);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
 }
 
-/* Dashed and unpainted: this colour has no honest rendering on this screen. */
+/* Unpainted: this colour has no honest rendering on this screen. */
 .gamutEmpty {
   align-items: center;
-  padding: 0.25rem;
-  border-style: dashed;
-}
-
-.gamutNote {
   color: var(--fg-muted);
-  font-size: 0.625rem;
-  line-height: 1.3;
   text-align: center;
 }
 
 /* Dark chip behind the caption so it stays readable on any swatch colour. */
 .gamutLabel {
-  padding: 0.05rem 0.3rem;
-  background: rgb(0 0 0 / 0.65);
-  color: #fff;
-  border-radius: 0.2rem;
-  font-size: 0.625rem;
-  letter-spacing: 0.02em;
+  padding: var(--spacing-px) var(--spacing-1);
+  background: var(--black-a70);
+  color: var(--white);
+  border-radius: var(--radius-xs);
 }
 
-/* Taller than a plain slider track: the track is a picture of the channel's
-   reachable range, not just a scale, so it needs room to read as color. */
+/* The channel tracks are the panel's slider track at full width: a picture
+   of the channel's reachable range painted onto the canvas inside. */
 .channelControl {
   width: 100%;
-  height: 1.6rem;
 }
 
-.channelTrack {
-  height: 1.25rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.25rem;
-  overflow: hidden;
-}
-
-/* Unreachable stretches are painted transparent, so the track's own background
-   shows through there and follows the panel's palette on its own. */
+/* Unreachable stretches are painted transparent, so the track's own
+   background shows through there. */
 .channelCanvas {
   position: absolute;
   inset: 0;
@@ -485,35 +514,72 @@
   height: 100%;
 }
 
-/* A ring rather than a filled dot: it sits on top of the very color it selects,
-   and an open centre keeps that color visible under the thumb. Dark hairlines
-   on both sides of the white ring, since the thumb has to stay legible over any
-   color on the track and equally over the bare track where none is reachable. */
+/* The thumb: an 8px hollow bar the full height of the track, white ring
+   inside a dark ring, so it stays legible over any color on the track and
+   equally over the bare track where none is reachable. The mock draws it at
+   6px; 8 reads less like a hairline at the track's 24px height. */
 .channelThumb {
-  width: 0.9rem;
-  height: 0.9rem;
-  outline: revert;
+  width: 8px;
   background: transparent;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 0.55),
-    inset 0 0 0 1px rgb(0 0 0 / 0.55);
+  border: var(--border-width-1) solid var(--black-a90);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--white-a90);
+  transition: none;
 }
 
 .colorTextInput {
-  width: 100%;
-  padding: 0.3rem 0.4rem;
-  background: var(--bg);
+  flex: 1;
+  min-width: 0;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.colorTextInput:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .colorTextInput[aria-invalid='true'] {
   border-color: #d9534f;
+}
+
+/* The picker's copy button: a boxed sibling of the text field, unlike the
+   panel's bare icon buttons, because it sits in a row of boxes. */
+.copyButton {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  padding: 0;
+  background: var(--gray-800);
+  color: var(--gray-200);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copyButton:hover {
+    color: var(--fg);
+  }
+}
+
+.copyButton:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.copyButton[data-copied] {
+  color: var(--accent);
 }
 
 .srOnly {

@@ -140,7 +140,7 @@ export function ListInput<TItem>({
           const removeAriaLabel = `${removeLabel} from ${qualifier}`;
 
           return (
-            <li className={styles.listRow} key={index}>
+            <li className={styles.listRow} data-list-row="" key={index}>
               <span className={styles.rowLabel}>{ownLabel}</span>
               <PathPrefixProvider segments={[...segments, index]}>
                 <ListRowProvider trail={[...ancestorTrail, ownLabel]}>

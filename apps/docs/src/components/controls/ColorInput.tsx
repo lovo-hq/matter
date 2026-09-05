@@ -16,6 +16,8 @@
  * (`@camp-dev/shaders/color` and `@camp-dev/shaders-react/gamut`), so it is a plain
  * import.
  */
+import { useRef } from 'react';
+
 import { Popover } from '@base-ui/react/popover';
 
 import { ColorPopoverContents } from './ColorPopoverContents';
@@ -38,8 +40,14 @@ export function ColorInput({ path, label }: ColorInputProps) {
   // a screen reader can tell the triggers apart.
   const name = inRow ? `${label} for ${trail.join(' > ')}` : label;
 
+  // The picker hangs off the whole row rather than the swatch, so its left
+  // edge lines up with the row's name and its width spans the row's name,
+  // swatch, value, and position. Outside a list the field itself is the row.
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const anchor = () => fieldRef.current?.closest('[data-list-row]') ?? fieldRef.current;
+
   return (
-    <div className={styles.field}>
+    <div className={styles.field} ref={fieldRef}>
       {!inRow && <span className={styles.fieldLabel}>{label}</span>}
       <Popover.Root>
         <Popover.Trigger className={styles.swatchTrigger}>
@@ -48,7 +56,7 @@ export function ColorInput({ path, label }: ColorInputProps) {
           <span className={styles.swatchValue}>{stored}</span>
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Positioner sideOffset={6}>
+          <Popover.Positioner align="start" anchor={anchor} sideOffset={4}>
             <Popover.Popup className={styles.colorPopup}>
               <ColorPopoverContents label={name} path={path} />
             </Popover.Popup>

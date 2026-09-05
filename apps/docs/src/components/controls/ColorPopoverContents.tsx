@@ -1,15 +1,18 @@
 'use client';
 
 /**
- * The popover's contents: one slider per OKLCH channel, and a text field that
- * accepts any color string the engine parses. ColorInput mounts this only while
- * the popover is open, so this component's own unmount is exactly "the popover
- * just closed."
+ * The picker's contents, top to bottom as the mock lays them out: the gamut
+ * preview, one slider per OKLCH channel, and a Color row holding a text
+ * field that accepts any color string the engine parses plus a button that
+ * copies the current one. ColorInput mounts this only while the popover is
+ * open, so this component's own unmount is exactly "the popover just closed."
  */
-import { type ChangeEvent, useEffect, useRef, useState } from 'react';
+import { type ChangeEvent, useEffect, useId, useRef, useState } from 'react';
 
 import { useDisplayGamut } from '@camp-dev/shaders-react/gamut';
 import { oklchInGamut, oklchToGamut } from '@camp-dev/shaders/color';
+
+import { CopyIcon } from '@/components/icons/copy';
 
 import { ChannelSlider } from './color/ChannelSlider';
 import { formatOklch, type OklchColor, parseToOklch } from './color/oklch';
@@ -20,6 +23,7 @@ import { usePropValue, useSetProp } from './useControl';
 export function ColorPopoverContents({ path, label }: { path: PathInput; label: string }) {
   const stored = usePropValue<string>(path);
   const setProp = useSetProp();
+  const colorLabelId = useId();
 
   // Non-null only while a gesture is in flight. Everything renders from
   // `color`, so the popup tracks the drag while the store stays still.
@@ -47,7 +51,7 @@ export function ColorPopoverContents({ path, label }: { path: PathInput; label: 
 
   // Colors commit on release, not continuously. LinearGradient, SimplexNoise,
   // and WaveLines rebuild their NodeMaterial whenever colors change, because
-  // colorRamp bakes color literals into the compiled shader — a continuous
+  // colorRamp bakes color literals into the compiled shader, so a continuous
   // drag would recompile the shader every frame. `commit` and `commitTyped`
   // are the only two places that write to the store.
   const commit = () => {
@@ -87,7 +91,7 @@ export function ColorPopoverContents({ path, label }: { path: PathInput; label: 
   // Flush whichever is pending on the way out, drag first: it is the later
   // gesture of the two, so it wins outright rather than having a typed string
   // from before it land on top. A pending typed value commits only if it is
-  // valid — an invalid, abandoned entry is deliberately discarded rather than
+  // valid; an invalid, abandoned entry is deliberately discarded rather than
   // written to the store as-is.
   useEffect(() => {
     return () => {
@@ -111,18 +115,72 @@ export function ColorPopoverContents({ path, label }: { path: PathInput; label: 
       <ChannelSlider channel="lightness" color={color} onCommit={commit} onPreview={setDraft} />
       <ChannelSlider channel="chroma" color={color} onCommit={commit} onPreview={setDraft} />
       <ChannelSlider channel="hue" color={color} onCommit={commit} onPreview={setDraft} />
-      <input
-        aria-invalid={typedIsInvalid}
-        aria-label={`${label} value`}
-        className={styles.colorTextInput}
-        onBlur={commitTyped}
-        onChange={handleTyping}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') commitTyped();
-        }}
-        spellCheck={false}
-        value={typed ?? cssColor}
-      />
+      <div className={styles.pickerField}>
+        <span className={styles.pickerLabel} id={colorLabelId}>
+          Color
+        </span>
+        <div className={styles.pickerRow}>
+          <input
+            aria-invalid={typedIsInvalid}
+            aria-label={`${label} value`}
+            className={styles.colorTextInput}
+            onBlur={commitTyped}
+            onChange={handleTyping}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') commitTyped();
+            }}
+            spellCheck={false}
+            value={typed ?? cssColor}
+          />
+          <CopyButton label={label} text={cssColor} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+const COPIED_FEEDBACK_MS = 1200;
+
+/**
+ * Copies the current color string. The glyph turns lime for a moment as the
+ * only visible feedback, and a live region says "Copied" for screen readers,
+ * since a changed aria-label on the button itself would go unannounced.
+ */
+function CopyButton({ label, text }: { label: string; text: string }) {
+  const [copied, setCopied] = useState(false);
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimeoutRef.current !== null) clearTimeout(feedbackTimeoutRef.current);
+    };
+  }, []);
+
+  const copy = () => {
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+
+      if (feedbackTimeoutRef.current !== null) clearTimeout(feedbackTimeoutRef.current);
+
+      feedbackTimeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+    });
+  };
+
+  return (
+    <>
+      <button
+        aria-label={`Copy ${label}`}
+        className={styles.copyButton}
+        data-copied={copied || undefined}
+        onClick={copy}
+        title="Copy"
+        type="button"
+      >
+        <CopyIcon />
+      </button>
+      <span aria-live="polite" className={styles.srOnly}>
+        {copied ? 'Copied' : ''}
+      </span>
     </>
   );
 }
@@ -133,13 +191,13 @@ export function ColorPopoverContents({ path, label }: { path: PathInput; label: 
  *
  * - fits sRGB: one wide swatch, nothing to compare it against
  * - needs P3 and this monitor has P3: the colour beside its sRGB fallback
- * - needs more than this monitor can show: a dashed placeholder saying so,
- *   beside the fallback, because painting a swatch there would be a lie — the
- *   browser would clamp it and it would look identical to the fallback
+ * - needs more than this monitor can show: a note saying so beside the
+ *   fallback, because painting a swatch there would be a lie. The browser
+ *   would clamp it and it would look identical to the fallback.
  *
  * The fallback comes from the engine's `oklchToGamut`, which sheds chroma while
  * holding lightness and hue. That is not what happens today if the shader is
- * asked for sRGB output — a narrow framebuffer clamps each channel on its own,
+ * asked for sRGB output: a narrow framebuffer clamps each channel on its own,
  * which shifts lightness and hue as well. So this previews the better of the two
  * behaviours, and the gap between them is its own piece of work.
  */
@@ -170,9 +228,7 @@ function GamutPreview({ color }: { color: OklchColor }) {
         </span>
       ) : (
         <span className={`${styles.gamutSwatch} ${styles.gamutEmpty}`}>
-          <span className={styles.gamutNote}>
-            {withinP3 ? 'Needs a P3 display' : 'No display shows this'}
-          </span>
+          {withinP3 ? 'Needs a P3 display' : 'No display support'}
         </span>
       )}
       <span className={styles.gamutSwatch} style={{ background: fallback }}>
