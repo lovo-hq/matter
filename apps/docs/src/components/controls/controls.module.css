@@ -555,7 +555,20 @@
   border: var(--border-width-1) solid var(--black-a90);
   border-radius: var(--radius-sm);
   box-shadow: inset 0 0 0 1px var(--white-a90);
-  transition: none;
+  transition: transform var(--duration-sm) var(--ease-out);
+}
+
+/* The same grab cue as the panel's sliders, at a gentler 1.25 (8px to
+   10px): a transform scales the ring's strokes along with it, and at 1.5
+   the thickened verticals start to read. */
+@media (hover: hover) and (pointer: fine) {
+  .channelControl:hover .channelThumb {
+    transform: scaleX(1.25);
+  }
+}
+
+.channelControl[data-dragging] .channelThumb {
+  transform: scaleX(1.25);
 }
 
 .colorTextInput {
