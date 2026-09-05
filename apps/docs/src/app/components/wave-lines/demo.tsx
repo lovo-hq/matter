@@ -96,6 +96,7 @@ function WaveLinesControls() {
         <SelectInput label="Color space" options={COLOR_SPACE_OPTIONS} path="colorSpace" />
       </Section>
       <ListInput<WaveLineParams>
+        collapsible
         createItem={createLine}
         itemLabel="line"
         label="Lines"

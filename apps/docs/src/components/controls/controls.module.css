@@ -614,7 +614,6 @@
    and the remove button sit against the right edge. */
 .listRow {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-1);
   min-height: var(--spacing-6);
@@ -627,8 +626,94 @@
   text-transform: capitalize;
 }
 
-/* A list nested inside a row (wave-lines' Colors inside each line) takes
-   the whole next line rather than squeezing beside the row's name. */
-.listRow > .section {
-  flex-basis: 100%;
+/* ---- Collapsible rows ---- */
+
+/* Lines sit 4px apart where flat rows sit 8, the mock's rhythm for a list
+   whose rows are headings rather than controls. */
+.listCollapsible {
+  gap: var(--spacing-1);
+}
+
+.disclosure {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.disclosureHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
+}
+
+/* The row's name as a button: caret when closed, chevron when open, both
+   from the icon set, then the name. Hover brightens the name only. */
+.disclosureTrigger {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--gray-200);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.disclosureTrigger .rowLabel {
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .disclosureTrigger:hover .rowLabel {
+    color: var(--fg);
+  }
+}
+
+.disclosureTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.disclosureOpenIcon,
+.disclosureTrigger[data-panel-open] .disclosureClosedIcon {
+  display: none;
+}
+
+.disclosureTrigger[data-panel-open] .disclosureOpenIcon {
+  display: block;
+}
+
+/* Base UI measures the panel and exposes its height as a custom property,
+   so open and close animate as a height change, the same deliberate
+   exception to transform-and-opacity the props table's accordion makes;
+   see docs/development/animation.md. Under Reduce Motion the duration
+   token is zero and the panel simply appears. */
+.disclosurePanel {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height var(--duration-sm) var(--ease-out);
+}
+
+.disclosurePanel[data-starting-style],
+.disclosurePanel[data-ending-style] {
+  height: 0;
+}
+
+/* 4px under the row's name, then the nested list. A list inside a
+   disclosure drops the rule and air a top-level group opens with: the
+   folded row is its heading already. */
+.disclosureContents {
+  padding-top: var(--spacing-1);
+}
+
+.disclosureContents .section {
+  padding-top: 0;
+  border-top: 0;
 }

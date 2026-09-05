@@ -13,9 +13,18 @@
  * up in the list's header. Controls learn they are inside a row from the
  * row trail (see context.tsx) and drop their own visible labels, since the
  * row already names them.
+ *
+ * A `collapsible` list is for rows whose contents are a whole nested list
+ * (wave-lines' lines, each holding its own colors): the row's name becomes
+ * a disclosure that folds the nested controls away, so a dozen lines fit in
+ * the panel without the reader scrolling past every color of every line.
  */
 import { type ReactNode, useId } from 'react';
 
+import { Collapsible } from '@base-ui/react/collapsible';
+
+import { CaretRightIcon } from '@/components/icons/caret-right';
+import { ChevronDownIcon } from '@/components/icons/chevron-down';
 import { MinusIcon } from '@/components/icons/minus';
 import { PlusIcon } from '@/components/icons/plus';
 
@@ -42,6 +51,11 @@ export interface ListInputProps<TItem> {
   insertIndex?: (items: readonly TItem[]) => number;
   /** Singular noun for row names and button labels. Defaults to "item". */
   itemLabel?: string;
+  /**
+   * Folds each row's controls under its name, all closed to start. For rows
+   * that hold a nested list rather than a line of compact controls.
+   */
+  collapsible?: boolean;
   children: (index: number) => ReactNode;
 }
 
@@ -53,6 +67,7 @@ export function ListInput<TItem>({
   createItem,
   insertIndex,
   itemLabel = 'item',
+  collapsible = false,
   children,
 }: ListInputProps<TItem>) {
   const store = useControlStore();
@@ -129,36 +144,69 @@ export function ListInput<TItem>({
           </button>
         )}
       </div>
-      <ul className={styles.list}>
+      <ul className={collapsible ? `${styles.list} ${styles.listCollapsible}` : styles.list}>
         {/* Rows are positional, not identity-keyed: removing row 1 genuinely
             shifts row 2 into its place, and the path prefix follows the
             position. A stable per-item id would be dead weight here since
-            nothing animates or preserves per-row UI state across a shift. */}
+            nothing preserves per-row UI state across a shift; a collapsible
+            row's open state is the one exception, and it simply stays with
+            the position, which is what a reader watching row 2 slide up into
+            row 1's place expects to see anyway. */}
         {Array.from({ length: count }, (_unused, index) => {
           const ownLabel = `${itemLabel} ${index + 1}`;
           const removeLabel = `Remove ${ownLabel}`;
           const removeAriaLabel = `${removeLabel} from ${qualifier}`;
+          const removeButton = !fixedSize && (
+            <button
+              aria-label={removeAriaLabel}
+              className={styles.iconButton}
+              disabled={count <= min}
+              onClick={() => removeAt(index)}
+              title={removeLabel}
+              type="button"
+            >
+              <MinusIcon />
+            </button>
+          );
+          const contents = (
+            <PathPrefixProvider segments={[...segments, index]}>
+              <ListRowProvider trail={[...ancestorTrail, ownLabel]}>
+                {children(index)}
+              </ListRowProvider>
+            </PathPrefixProvider>
+          );
+
+          if (collapsible) {
+            return (
+              <li className={styles.listRow} data-list-row="" key={index}>
+                <Collapsible.Root className={styles.disclosure}>
+                  <div className={styles.disclosureHeader}>
+                    {/* Both glyphs render and CSS shows one, keyed off Base
+                        UI's data-panel-open, so the swap needs no state. */}
+                    <Collapsible.Trigger className={styles.disclosureTrigger}>
+                      <CaretRightIcon
+                        className={styles.disclosureClosedIcon}
+                        height="16"
+                        width="16"
+                      />
+                      <ChevronDownIcon className={styles.disclosureOpenIcon} />
+                      <span className={styles.rowLabel}>{ownLabel}</span>
+                    </Collapsible.Trigger>
+                    {removeButton}
+                  </div>
+                  <Collapsible.Panel className={styles.disclosurePanel}>
+                    <div className={styles.disclosureContents}>{contents}</div>
+                  </Collapsible.Panel>
+                </Collapsible.Root>
+              </li>
+            );
+          }
 
           return (
             <li className={styles.listRow} data-list-row="" key={index}>
               <span className={styles.rowLabel}>{ownLabel}</span>
-              <PathPrefixProvider segments={[...segments, index]}>
-                <ListRowProvider trail={[...ancestorTrail, ownLabel]}>
-                  {children(index)}
-                </ListRowProvider>
-              </PathPrefixProvider>
-              {!fixedSize && (
-                <button
-                  aria-label={removeAriaLabel}
-                  className={styles.iconButton}
-                  disabled={count <= min}
-                  onClick={() => removeAt(index)}
-                  title={removeLabel}
-                  type="button"
-                >
-                  <MinusIcon />
-                </button>
-              )}
+              {contents}
+              {removeButton}
             </li>
           );
         })}
