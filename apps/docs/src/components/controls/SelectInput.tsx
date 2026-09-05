@@ -7,6 +7,8 @@
  */
 import { Select } from '@base-ui/react/select';
 
+import { ChevronDownIcon } from '@/components/icons/chevron-down';
+
 import styles from './controls.module.css';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
@@ -31,8 +33,10 @@ export function SelectInput({ path, label, options }: SelectInputProps) {
       <div className={styles.field}>
         <Select.Label className={styles.fieldLabel}>{label}</Select.Label>
         <Select.Trigger className={styles.selectTrigger}>
-          <Select.Value />
-          <Select.Icon aria-hidden="true">▾</Select.Icon>
+          <Select.Value className={styles.selectValue} />
+          <Select.Icon className={styles.selectIcon}>
+            <ChevronDownIcon />
+          </Select.Icon>
         </Select.Trigger>
       </div>
       <Select.Portal>

@@ -48,7 +48,7 @@
   );
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--duration-sm) var(--ease-out);
+  transition: opacity var(--fade-sm) var(--ease-out);
 }
 
 .controls[data-has-more] .fade {

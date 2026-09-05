@@ -24,7 +24,7 @@ export interface SliderInputProps {
   step: number;
   /** Jump size for Page Up/Down. Defaults to ten steps. */
   largeStep?: number;
-  /** Decimal places in the readout. Defaults to what `step` implies. */
+  /** Most decimal places the readout shows. Defaults to what `step` implies. */
   decimals?: number;
 }
 
@@ -44,11 +44,11 @@ export function SliderInput({
   const value = usePropValue<number>(path);
   const setProp = useSetProp();
 
+  // A ceiling only, no floor: the 40px readout shows 1 as "1" and 0.35 as
+  // "0.35", the way the mock writes them, rather than padding every value to
+  // "1.00". Typed entry still rounds to the same number of places.
   const fractionDigits = decimals ?? decimalsForStep(step);
-  const format: Intl.NumberFormatOptions = {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  };
+  const format: Intl.NumberFormatOptions = { maximumFractionDigits: fractionDigits };
 
   const commit = (next: number) => {
     setProp(path, Math.min(max, Math.max(min, next)));
@@ -64,6 +64,9 @@ export function SliderInput({
         min={min}
         onValueChange={commit}
         step={step}
+        // Keeps the whole 4px thumb inside the track at 0 and at max, instead
+        // of centering it on the edge where half of it would be clipped.
+        thumbAlignment="edge"
         value={value}
       >
         <Slider.Label className={styles.fieldLabel}>{label}</Slider.Label>

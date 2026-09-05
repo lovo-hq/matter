@@ -49,17 +49,19 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition:
-    color var(--duration-sm) var(--ease-hover),
-    background-color var(--duration-sm) var(--ease-hover);
+    color var(--fade-xs) var(--ease-hover),
+    background-color var(--fade-xs) var(--ease-hover);
 }
 
-.iconButton:hover:not(:disabled) {
-  background: var(--white-a5);
-  color: var(--fg);
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover:not(:disabled) {
+    background: var(--white-a5);
+    color: var(--fg);
+  }
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 1px solid var(--accent);
   outline-offset: 1px;
 }
 
@@ -95,16 +97,20 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/* ---- Fields (label beside control) ---- */
+/* ---- Rows (label beside control) ---- */
 
+/* One 24px row: the label takes whatever width is left and the control sits
+   against the right edge at the mock's fixed size. */
 .field {
-  display: grid;
-  grid-template-columns: 6.5rem 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
 }
 
 .fieldLabel {
+  flex: 1;
+  min-width: 0;
   color: var(--fg-muted);
   overflow-wrap: anywhere;
 }
@@ -113,100 +119,173 @@
 
 /*
  * Slider.Root renders its own wrapper div around Label and Control. Without
- * this, that wrapper becomes .field's grid item instead of Label and Control
- * themselves, collapsing the label+track into one column. `display: contents`
- * removes the wrapper from layout so its children take its place as direct
- * grid items, landing Label in column 1 and Control in column 2, same as
- * SelectInput's label/trigger pair.
+ * this, that wrapper becomes .field's flex item instead of Label and Control
+ * themselves, and the label could no longer push the control to the right
+ * edge. `display: contents` removes the wrapper from layout so its children
+ * take its place as direct flex items, same as SelectInput's label and
+ * trigger pair.
  */
 .sliderRoot {
   display: contents;
 }
 
+/* The mock's slider is a 96px bar whose lime fill is the value, with no
+   thumb. The control is the whole hit area: press or drag anywhere on it and
+   Base UI moves the value there. */
 .sliderControl {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 1.25rem;
+  position: relative;
+  flex: none;
+  width: 6rem;
+  height: var(--spacing-6);
   touch-action: none;
+  cursor: grab;
+}
+
+/* Base UI sets data-dragging on every slider part while a drag is in
+   flight, which is what keeps the closed hand and the lit thumb on through
+   a drag that wanders off the 4px thumb or off the control entirely. */
+.sliderControl[data-dragging] {
+  cursor: grabbing;
 }
 
 .sliderTrack {
   position: relative;
   width: 100%;
-  height: 0.4rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.2rem;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gray-800);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
 }
 
+/* Base UI sizes the indicator to the value as a percentage of the track.
+   Only its left corners are rounded: the right edge sits under the thumb. */
 .sliderIndicator {
-  position: absolute;
   height: 100%;
   background: var(--accent);
-  border-radius: 0.2rem;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 }
 
+/* The mock's thumb: a 4px lime-50 bar the full height of the track, sitting
+   on the fill's edge. Base UI positions it at the value and keeps the
+   keyboard focus inside it (on a hidden range input); the focus ring is
+   drawn on the track rather than on this sliver. */
 .sliderThumb {
-  width: 0.85rem;
-  height: 0.85rem;
-  background: var(--fg);
-  border-radius: 50%;
+  width: 4px;
+  height: 100%;
+  background: var(--lime-50);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: background-color var(--fade-xs) var(--ease-hover);
 }
 
-.sliderThumb:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/* The thumb lights up to lime-25 when the pointer is anywhere on the
+   control, not only on the thumb's own 4px, since the whole bar is the hit
+   area. Gated to fine pointers so a tap on touch does not leave it lit. The
+   popover's channel sliders keep their ring thumb out of this. */
+@media (hover: hover) and (pointer: fine) {
+  .sliderControl:hover .sliderThumb:not(.channelThumb) {
+    background: var(--lime-25);
+  }
+}
+
+.sliderControl[data-dragging] .sliderThumb:not(.channelThumb) {
+  background: var(--lime-25);
+}
+
+.sliderTrack:has(:focus-visible) {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 
 /* ---- Number readout ---- */
 
 .numberInput {
-  width: 4rem;
-  padding: 0.2rem 0.35rem;
-  background: var(--bg);
+  width: 2.5rem;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-1);
+  background: var(--gray-800);
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
   font: inherit;
   font-variant-numeric: tabular-nums;
-  text-align: right;
+  text-align: center;
+}
+
+.numberInput:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 
 /* ---- Select ---- */
 
 .selectTrigger {
   display: flex;
+  flex: none;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  grid-column: 2 / -1;
-  padding: 0.3rem 0.5rem;
-  background: var(--bg);
+  gap: var(--spacing-2);
+  width: 8.75rem;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
   font: inherit;
+  text-align: left;
   cursor: pointer;
 }
 
+.selectTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.selectValue {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectIcon {
+  display: flex;
+  flex: none;
+  color: var(--gray-200);
+}
+
+/* Portaled to <body>, so it inherits none of the panel's type and sets its
+   own. --anchor-width is set by Base UI's positioner to the trigger's width,
+   which keeps the list flush with the box it opened from. */
 .selectPopup {
-  padding: 0.25rem;
-  background: var(--bg-muted);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  min-width: var(--anchor-width);
+  padding: var(--spacing-1);
+  background: var(--gray-800);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  font-size: var(--font-size-xs);
+  line-height: var(--leading-4);
 }
 
 .selectItem {
-  padding: 0.3rem 0.5rem;
-  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  outline: none;
 }
 
+/* The sidebar's active-row treatment, so "selected" means the same thing
+   across the site. */
 .selectItem[data-highlighted] {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--lime-900);
+  color: var(--lime-100);
 }
 
 /* ---- Color picker ---- */
@@ -302,11 +381,14 @@
 /* Taller than a plain slider track: the track is a picture of the channel's
    reachable range, not just a scale, so it needs room to read as color. */
 .channelControl {
+  width: 100%;
   height: 1.6rem;
 }
 
 .channelTrack {
   height: 1.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 0.25rem;
   overflow: hidden;
 }
@@ -328,6 +410,7 @@
 .channelThumb {
   width: 0.9rem;
   height: 0.9rem;
+  outline: revert;
   background: transparent;
   border: 2px solid #fff;
   border-radius: 50%;
