@@ -1,0 +1,71 @@
+/* The demo page's two-column grid (shader beside controls) and the sticky
+   controls column with its scroll fade. The Playwright fixture pins
+   [data-shader-demo] to 560px under ?visualTest=1, so nothing in here can
+   move the visual baselines; only the shader wrapper's own aspect can. */
+
+/* Shader column at 4xl and the control panel at 2xs, the mock's widths.
+   The horizontal inset comes from the docs shell's main column, so the grid
+   pads only vertically. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, var(--container-4xl)) minmax(0, var(--container-2xs));
+  gap: var(--spacing-4);
+  align-items: start;
+  padding: var(--spacing-6) 0;
+}
+
+/* Sticks 24px below the top of the viewport and never grows past it. The
+   overflow belongs to the scroller inside, not to this element, so the fade
+   can sit on top of the column without scrolling away with the panel. */
+.controls {
+  position: sticky;
+  top: var(--spacing-6);
+  max-height: calc(100vh - var(--spacing-12));
+}
+
+.scroller {
+  max-height: inherit;
+  overflow-y: auto;
+}
+
+/* The mock's "reveal": 64px of the panel's own color fading upward over its
+   bottom edge, telling the reader there are more controls below. It fades in
+   only while DemoLayout finds something left to scroll to (data-has-more),
+   so a short panel keeps its last row at full strength. The corners match
+   the panel's radius so the gradient stays inside its outline. */
+.fade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--spacing-16);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  background: linear-gradient(
+    to top,
+    var(--bg-muted) 0%,
+    color-mix(in srgb, var(--bg-muted) 80%, transparent) 39%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-sm) var(--ease-out);
+}
+
+.controls[data-has-more] .fade {
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .controls {
+    position: static;
+    max-height: none;
+  }
+
+  .scroller {
+    max-height: none;
+  }
+}

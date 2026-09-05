@@ -29,8 +29,6 @@ import { INITIAL, type VignetteParams } from './params';
 
 const VignetteScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Vignette', siblings: ['<LinearGradient />'] } as const;
-
 function VignetteDemo() {
   const params = useSnapshot<VignetteParams>();
 
@@ -48,7 +46,7 @@ function VignetteDemo() {
 
 function VignetteControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Vignette>">
+    <ControlPanel>
       <Section title="Shape">
         <SliderInput label="Intensity" max={1} min={0} path="intensity" step={0.01} />
         <SliderInput label="Feather" max={1} min={0} path="feather" step={0.01} />

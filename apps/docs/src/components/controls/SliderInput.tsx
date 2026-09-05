@@ -10,6 +10,7 @@
 import { NumberField } from '@base-ui/react/number-field';
 import { Slider } from '@base-ui/react/slider';
 
+import styles from './controls.module.css';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
@@ -54,9 +55,9 @@ export function SliderInput({
   };
 
   return (
-    <div className="controls-field">
+    <div className={styles.field}>
       <Slider.Root
-        className="slider-root"
+        className={styles.sliderRoot}
         format={format}
         largeStep={largeStep ?? step * 10}
         max={max}
@@ -65,11 +66,11 @@ export function SliderInput({
         step={step}
         value={value}
       >
-        <Slider.Label className="controls-field-label">{label}</Slider.Label>
-        <Slider.Control className="slider-control">
-          <Slider.Track className="slider-track">
-            <Slider.Indicator className="slider-indicator" />
-            <Slider.Thumb className="slider-thumb" />
+        <Slider.Label className={styles.fieldLabel}>{label}</Slider.Label>
+        <Slider.Control className={styles.sliderControl}>
+          <Slider.Track className={styles.sliderTrack}>
+            <Slider.Indicator className={styles.sliderIndicator} />
+            <Slider.Thumb className={styles.sliderThumb} />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
@@ -84,7 +85,7 @@ export function SliderInput({
         value={value}
       >
         <NumberField.Group>
-          <NumberField.Input aria-label={`${label} value`} className="number-input" />
+          <NumberField.Input aria-label={`${label} value`} className={styles.numberInput} />
         </NumberField.Group>
       </NumberField.Root>
     </div>

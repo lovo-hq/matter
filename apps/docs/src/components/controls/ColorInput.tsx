@@ -14,6 +14,7 @@
 import { Popover } from '@base-ui/react/popover';
 
 import { ColorPopoverContents } from './ColorPopoverContents';
+import styles from './controls.module.css';
 import type { PathInput } from './store';
 import { usePropValue } from './useControl';
 
@@ -26,17 +27,17 @@ export function ColorInput({ path, label }: ColorInputProps) {
   const stored = usePropValue<string>(path);
 
   return (
-    <div className="controls-field">
-      <span className="controls-field-label">{label}</span>
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>{label}</span>
       <Popover.Root>
-        <Popover.Trigger className="color-swatch-trigger">
-          <span className="sr-only">{`Edit ${label}`}</span>
-          <span aria-hidden="true" className="color-swatch" style={{ background: stored }} />
-          <span className="color-swatch-value">{stored}</span>
+        <Popover.Trigger className={styles.swatchTrigger}>
+          <span className={styles.srOnly}>{`Edit ${label}`}</span>
+          <span aria-hidden="true" className={styles.swatch} style={{ background: stored }} />
+          <span className={styles.swatchValue}>{stored}</span>
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner sideOffset={6}>
-            <Popover.Popup className="color-popup">
+            <Popover.Popup className={styles.colorPopup}>
               <ColorPopoverContents label={label} path={path} />
             </Popover.Popup>
           </Popover.Positioner>

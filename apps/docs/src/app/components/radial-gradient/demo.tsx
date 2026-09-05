@@ -32,8 +32,6 @@ import type { Params, Stop } from './params';
 
 const RadialGradientScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'RadialGradient' } as const;
-
 function RadialGradientDemo() {
   const params = useSnapshot<Params>();
 
@@ -51,7 +49,7 @@ function RadialGradientDemo() {
 
 function RadialGradientControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<RadialGradient>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={2} min={0} path="speed" step={0.01} />
       </Section>

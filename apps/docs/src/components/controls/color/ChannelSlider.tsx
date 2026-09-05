@@ -26,6 +26,7 @@ import {
   oklchToLinearSrgb,
 } from '@camp-dev/shaders/color';
 
+import styles from '../controls.module.css';
 import { MAX_CHROMA, type OklchColor } from './oklch';
 
 /** Which of the three numbers this slider edits. Keys match `OklchColor`. */
@@ -189,11 +190,11 @@ export function ChannelSlider({
       step={step}
       value={color[channel]}
     >
-      <Slider.Label className="controls-field-label">{label}</Slider.Label>
-      <Slider.Control className="slider-control channel-control">
-        <Slider.Track className="slider-track channel-track">
-          <canvas aria-hidden="true" className="channel-track-canvas" ref={canvasRef} />
-          <Slider.Thumb className="slider-thumb channel-thumb" />
+      <Slider.Label className={styles.fieldLabel}>{label}</Slider.Label>
+      <Slider.Control className={`${styles.sliderControl} ${styles.channelControl}`}>
+        <Slider.Track className={`${styles.sliderTrack} ${styles.channelTrack}`}>
+          <canvas aria-hidden="true" className={styles.channelCanvas} ref={canvasRef} />
+          <Slider.Thumb className={`${styles.sliderThumb} ${styles.channelThumb}`} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>

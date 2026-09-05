@@ -7,6 +7,7 @@
  */
 import { Select } from '@base-ui/react/select';
 
+import styles from './controls.module.css';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
@@ -27,19 +28,19 @@ export function SelectInput({ path, label, options }: SelectInputProps) {
 
   return (
     <Select.Root items={options} onValueChange={(next) => setProp(path, next)} value={value}>
-      <div className="controls-field">
-        <Select.Label className="controls-field-label">{label}</Select.Label>
-        <Select.Trigger className="select-trigger">
+      <div className={styles.field}>
+        <Select.Label className={styles.fieldLabel}>{label}</Select.Label>
+        <Select.Trigger className={styles.selectTrigger}>
           <Select.Value />
           <Select.Icon aria-hidden="true">▾</Select.Icon>
         </Select.Trigger>
       </div>
       <Select.Portal>
         <Select.Positioner sideOffset={4}>
-          <Select.Popup className="select-popup">
+          <Select.Popup className={styles.selectPopup}>
             <Select.List>
               {options.map(({ label: optionLabel, value: optionValue }) => (
-                <Select.Item className="select-item" key={optionValue} value={optionValue}>
+                <Select.Item className={styles.selectItem} key={optionValue} value={optionValue}>
                   <Select.ItemText>{optionLabel}</Select.ItemText>
                 </Select.Item>
               ))}

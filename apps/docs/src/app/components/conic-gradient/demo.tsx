@@ -32,8 +32,6 @@ import type { Params, Stop } from './params';
 
 const ConicGradientScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'ConicGradient' } as const;
-
 function ConicGradientDemo() {
   const params = useSnapshot<Params>();
 
@@ -51,7 +49,7 @@ function ConicGradientDemo() {
 
 function ConicGradientControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<ConicGradient>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={2} min={-2} path="speed" step={0.01} />
       </Section>

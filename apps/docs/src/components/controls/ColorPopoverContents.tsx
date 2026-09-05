@@ -13,6 +13,7 @@ import { oklchInGamut, oklchToGamut } from '@camp-dev/shaders/color';
 
 import { ChannelSlider } from './color/ChannelSlider';
 import { formatOklch, type OklchColor, parseToOklch } from './color/oklch';
+import styles from './controls.module.css';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
@@ -113,7 +114,7 @@ export function ColorPopoverContents({ path, label }: { path: PathInput; label: 
       <input
         aria-invalid={typedIsInvalid}
         aria-label={`${label} value`}
-        className="color-text-input"
+        className={styles.colorTextInput}
         onBlur={commitTyped}
         onChange={handleTyping}
         onKeyDown={(event) => {
@@ -151,8 +152,8 @@ function GamutPreview({ color }: { color: OklchColor }) {
 
   if (oklchInGamut(lightness, chroma, hue, 'srgb')) {
     return (
-      <div className="gamut-preview">
-        <span className="gamut-preview-swatch" style={{ background: exact }} />
+      <div className={styles.gamutPreview}>
+        <span className={styles.gamutSwatch} style={{ background: exact }} />
       </div>
     );
   }
@@ -162,20 +163,20 @@ function GamutPreview({ color }: { color: OklchColor }) {
   const withinP3 = oklchInGamut(lightness, chroma, hue, 'p3');
 
   return (
-    <div className="gamut-preview gamut-preview-split">
+    <div className={`${styles.gamutPreview} ${styles.gamutPreviewSplit}`}>
       {withinP3 && displayGamut === 'p3' ? (
-        <span className="gamut-preview-swatch" style={{ background: exact }}>
-          <span className="gamut-preview-label">P3</span>
+        <span className={styles.gamutSwatch} style={{ background: exact }}>
+          <span className={styles.gamutLabel}>P3</span>
         </span>
       ) : (
-        <span className="gamut-preview-swatch gamut-preview-empty">
-          <span className="gamut-preview-note">
+        <span className={`${styles.gamutSwatch} ${styles.gamutEmpty}`}>
+          <span className={styles.gamutNote}>
             {withinP3 ? 'Needs a P3 display' : 'No display shows this'}
           </span>
         </span>
       )}
-      <span className="gamut-preview-swatch" style={{ background: fallback }}>
-        <span className="gamut-preview-label">Fallback</span>
+      <span className={styles.gamutSwatch} style={{ background: fallback }}>
+        <span className={styles.gamutLabel}>Fallback</span>
       </span>
     </div>
   );

@@ -26,8 +26,6 @@ import { type GrainParams, INITIAL } from './params';
 
 const GrainScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Grain', siblings: ['<LinearGradient />'] } as const;
-
 const BLEND_OPTIONS = [
   { label: 'Additive', value: 'additive' },
   { label: 'Subtractive', value: 'subtractive' },
@@ -55,7 +53,7 @@ function GrainDemo() {
 
 function GrainControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Grain>">
+    <ControlPanel>
       <Section title="Grain">
         <SliderInput label="Intensity" max={1} min={0} path="intensity" step={0.01} />
         <SliderInput label="Speed" max={2} min={0} path="speed" step={0.01} />

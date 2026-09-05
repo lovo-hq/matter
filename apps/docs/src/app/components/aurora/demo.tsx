@@ -32,8 +32,6 @@ import { type AuroraParams, INITIAL, MAX_STOPS, MIN_STOPS, type PlainColorStop }
 
 const AuroraScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Aurora' } as const;
-
 function AuroraDemo() {
   const params = useSnapshot<AuroraParams>();
 
@@ -51,7 +49,7 @@ function AuroraDemo() {
 
 function AuroraControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Aurora>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={3} min={0} path="speed" step={0.01} />
         <SliderInput label="Waviness" max={3} min={0} path="waviness" step={0.01} />

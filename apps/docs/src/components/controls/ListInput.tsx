@@ -7,9 +7,10 @@
  * Subscribes to the array's length only: a nested write rebuilds the whole
  * array's identity, so reading the array itself here would re-render every row.
  */
-import { createContext, type ReactNode, useContext } from 'react';
+import { createContext, type ReactNode, useContext, useId } from 'react';
 
 import { PathPrefixProvider, useControlStore } from './context';
+import styles from './controls.module.css';
 import { normalizePath, type PathInput } from './store';
 import { usePropValue, useResolvedPath, useSetProp } from './useControl';
 
@@ -61,6 +62,7 @@ export function ListInput<TItem>({
   const resolvedPath = useResolvedPath(path);
   const segments = normalizePath(path);
   const ancestorBreadcrumb = useContext(ListBreadcrumbContext);
+  const headingId = useId();
 
   // The only reactive read in this component. Writing any nested field (e.g.
   // stops[1].position) rebuilds every container from the root down to that
@@ -111,12 +113,14 @@ export function ListInput<TItem>({
   const fixedSize = min === max;
 
   return (
-    <fieldset className="controls-section">
-      <legend className="controls-list-header">
-        <span className="controls-section-title">{label}</span>
-        <span>{`${count} / ${max}`}</span>
-      </legend>
-      <ul className="controls-list">
+    <div aria-labelledby={headingId} className={styles.section} role="group">
+      <div className={styles.sectionHeader}>
+        <p className={styles.sectionTitle} id={headingId}>
+          {label}
+        </p>
+        <span className={styles.listCount}>{`${count} / ${max}`}</span>
+      </div>
+      <ul className={styles.list}>
         {/* Rows are positional, not identity-keyed: removing row 1 genuinely
             shifts row 2 into its place, and the path prefix follows the
             position. A stable per-item id would be dead weight here since
@@ -127,13 +131,13 @@ export function ListInput<TItem>({
           const removeAriaLabel = `${removeLabel} from ${qualifier}`;
 
           return (
-            <li className="controls-list-row" key={index}>
-              <div className="controls-list-row-header">
+            <li className={styles.listRow} key={index}>
+              <div className={styles.listRowHeader}>
                 <span>{ownLabel}</span>
                 {!fixedSize && (
                   <button
                     aria-label={removeAriaLabel}
-                    className="controls-list-remove"
+                    className={styles.listRemove}
                     disabled={count <= min}
                     onClick={() => removeAt(index)}
                     type="button"
@@ -160,7 +164,7 @@ export function ListInput<TItem>({
       {!fixedSize && (
         <button
           aria-label={addAriaLabel}
-          className="controls-button"
+          className={styles.button}
           disabled={count >= max}
           onClick={add}
           type="button"
@@ -168,6 +172,6 @@ export function ListInput<TItem>({
           {addLabel}
         </button>
       )}
-    </fieldset>
+    </div>
   );
 }

@@ -45,8 +45,6 @@ import {
 
 const WaveLinesScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'WaveLines' } as const;
-
 const FALLBACK_COLOR = 'oklch(0.6 0.15 250)';
 
 /** New lines and new stops clone the last one so the addition is visible. */
@@ -76,7 +74,7 @@ function WaveLinesDemo() {
 
 function WaveLinesControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<WaveLines>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={4} min={0} path="speed" step={0.05} />
         <SliderInput label="Amplitude" max={0.5} min={0} path="amplitude" step={0.005} />

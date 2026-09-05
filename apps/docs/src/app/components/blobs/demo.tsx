@@ -30,8 +30,6 @@ import { INITIAL, MAX_STOPS, MIN_STOPS, type Params, type PlainColorStop } from 
 
 const BlobsScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Blobs' } as const;
-
 /** A new palette color clones the last one so the addition is visible. */
 const createStop = (stops: readonly PlainColorStop[]): PlainColorStop => {
   const last = stops[stops.length - 1];
@@ -56,7 +54,7 @@ function BlobsDemo() {
 
 function BlobsControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Blobs>">
+    <ControlPanel>
       <Section title="Blobs">
         <SliderInput label="Count" max={20} min={1} path="count" step={0.1} />
         <SliderInput label="Size" max={1} min={0} path="size" step={0.01} />

@@ -30,8 +30,6 @@ import { INITIAL, MAX_STOPS, MIN_STOPS, type Params, type PlainColorStop } from 
 
 const VoronoiScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Voronoi' } as const;
-
 /** A new palette color clones the last one so the addition is visible. */
 const createStop = (stops: readonly PlainColorStop[]): PlainColorStop => {
   const last = stops[stops.length - 1];
@@ -56,7 +54,7 @@ function VoronoiDemo() {
 
 function VoronoiControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Voronoi>">
+    <ControlPanel>
       <Section title="Cells">
         <SliderInput label="Scale" max={20} min={1} path="scale" step={0.1} />
         <SliderInput label="Seed" max={100} min={0} path="seed" step={1} />
