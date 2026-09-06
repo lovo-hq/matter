@@ -92,6 +92,56 @@
   cursor: not-allowed;
 }
 
+/* ---- Text buttons ---- */
+
+/* The page header's Copy React button, reused for Reset: a 32px boxed
+   button with a 16px glyph and 14px text. Hover brightens, and the press
+   is felt through a slight scale rather than seen. */
+.textButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: var(--spacing-8);
+  padding: 0 var(--spacing-2);
+  background: var(--bg-muted);
+  color: var(--gray-50);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--leading-5);
+  cursor: pointer;
+  transition:
+    color var(--fade-xs) var(--ease-hover),
+    background-color var(--fade-xs) var(--ease-hover),
+    transform var(--duration-sm) var(--ease-out);
+}
+
+.textButton svg {
+  color: var(--gray-200);
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .textButton:hover {
+    background: var(--white-a5);
+    color: var(--fg);
+  }
+
+  .textButton:hover svg {
+    color: var(--fg);
+  }
+}
+
+.textButton:active {
+  transform: scale(0.97);
+}
+
+.textButton:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
 /* ---- Groups ---- */
 
 /* Every group opens with a hairline rule and 12px of air, then a 24px header
