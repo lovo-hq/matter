@@ -1,0 +1,196 @@
+/* The floating table of contents beside the shader preview: the dock that
+   pins it, the lines in the gutter, and the menu they open. Everything here
+   sits outside the canvas, so none of it can move the visual baselines. */
+
+/* ---- The dock ---- */
+
+/* A zero-height sticky block in the page flow, right after the demo grid,
+   whose one job is to give the lines a place that starts beside the shader
+   and then follows the page. Sticky lets a box ride with the page until it
+   would cross `top` from the viewport's edge, and holds it there from then
+   on, for as long as its parent (the page's <main>) is on screen. The lines
+   hang above this block by the distance to the shader's center, so they
+   rest on the shader at load and pin to the middle of the viewport once the
+   page scrolls that far.
+   The block is an inline-size container so the lines can size against its
+   width, which is the demo grid's width. */
+.dock {
+  /* The shader column's width, mirroring --stage-width on .layout in
+     demo-layout.module.css: the 4xl cap, or what the grid has left after
+     the controls column and the gap. */
+  --stage-width: min(var(--container-4xl), calc(100cqw - var(--spacing-4) - var(--container-2xs)));
+
+  /* How far the shader's vertical center sits above this block: the grid's
+     bottom padding plus half the shader's height, which is 3:2 of the
+     column ([data-shader-demo] in globals.css). */
+  --shader-center: calc(var(--spacing-6) + var(--stage-width) / 3);
+
+  position: sticky;
+  /* The pin: this block stops --shader-center below the viewport's middle,
+     which puts the lines exactly at the middle. On a viewport tall enough
+     that its middle is already below the shader's center at load (past
+     about 1200px), sticky pushes the block down to the pin instead and the
+     lines rest a little under the shader's center. */
+  top: calc(50vh + var(--shader-center));
+  z-index: 1;
+  height: 0;
+  container-type: inline-size;
+}
+
+/* ---- The lines ---- */
+
+/* One button drawn as a stack of rules, hung off the dock's left edge into
+   the 40px gutter the docs shell pads main with, so it sits flush against
+   the sidebar. The box is the mock's: 24px wide, 4px of vertical padding,
+   and the rules 12px apart. translateY(-50%) centers the stack on the
+   shader's center whatever the section count. */
+.trigger {
+  position: absolute;
+  top: calc(-1 * var(--shader-center));
+  left: calc(-1 * var(--spacing-10));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  width: var(--spacing-6);
+  padding: var(--spacing-1) 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: transform var(--duration-sm) var(--ease-out);
+}
+
+/* Press feedback, felt rather than seen, and outside the hover gate so a tap
+   gets it too. The translate is the stack's resting position and rides
+   along. */
+.trigger:active {
+  transform: translateY(-50%) scale(0.97);
+}
+
+.trigger:focus-visible {
+  outline: var(--border-width-2) solid var(--accent);
+  outline-offset: var(--spacing-1);
+}
+
+/* A 2px rule in the mock's resting gray. The current section's rule is
+   lime, and the change eases as the reader scrolls from one section into
+   the next, at the same hover-color timing as the rows. */
+.line {
+  display: block;
+  height: var(--spacing-0-5);
+  border-radius: var(--radius-full);
+  background: var(--gray-600);
+  transition: background-color var(--fade-xs) var(--ease-hover);
+}
+
+.line[data-active] {
+  background: var(--accent);
+}
+
+/* The resting rules lift to the muted text gray while the pointer is on
+   the stack or the menu is open, so the stack reads as something to hover.
+   Gated to pointing devices: a touch tap fires :hover too, and the lift
+   would then stick after the tap. */
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover .line:not([data-active]),
+  .trigger[data-popup-open] .line:not([data-active]) {
+    background: var(--fg-muted);
+  }
+}
+
+/* ---- The menu ---- */
+
+/* Portaled to <body>, so it sets its own type. The mock's panel: 256px
+   wide, 12px of padding, the darkest gray with a hairline and 12px corners.
+   It scales in from the edge nearest the lines, the site's popup pattern;
+   Base UI sets --transform-origin from where the popup was placed. */
+.popup {
+  box-sizing: border-box;
+  width: var(--container-3xs);
+  padding: var(--spacing-3);
+  background: var(--gray-900);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  font-size: var(--font-size-sm);
+  line-height: var(--leading-5);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform var(--duration-sm) var(--ease-out),
+    opacity var(--fade-sm) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-0-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row is the sidebar's row: 14px muted text in a 36px box with 12px on
+   the left and 8px elsewhere, 6px corners. Hover borrows the sidebar's
+   faint white fill. The current section is the mock's darker gray fill
+   under full-white text, rather than the sidebar's lime, because it marks
+   where the reader is on the page and not a page they chose. */
+.row {
+  display: block;
+  height: var(--spacing-9);
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  color: var(--fg-muted);
+  text-decoration: none;
+  transition:
+    color var(--fade-xs) var(--ease-hover),
+    background-color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row:hover {
+    background: var(--white-a5);
+    color: var(--fg);
+    text-decoration: none;
+  }
+}
+
+.row[aria-current],
+.row[aria-current]:hover {
+  background: var(--gray-800);
+  color: var(--fg);
+}
+
+.row:focus-visible {
+  outline: var(--border-width-2) solid var(--accent);
+  outline-offset: var(--border-width-2);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Under 1024px the demo grid stacks the controls under the shader, so the
+   grid's bottom edge is no longer a fixed distance from the shader's center
+   and the dock's arithmetic no longer holds. The narrow layout is SHA-126's
+   to design, so the TOC stays off until then. */
+@media (max-width: 1024px) {
+  .dock {
+    display: none;
+  }
+}

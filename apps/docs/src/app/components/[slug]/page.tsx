@@ -7,6 +7,9 @@
  * every component page has an entry in.
  * Rendering waits on that entry, so a new component joins the site by
  * registering its demo island here rather than by adding a page file.
+ * The floating table of contents beside the demo lists the same three
+ * sections on every page, so its rows are fixed here rather than read from
+ * the headings.
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -15,6 +18,7 @@ import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/breadcrumbs/breadcrumbs';
 import { CodeBlock } from '@/components/code-block/code-block';
 import { ChevronDownIcon } from '@/components/icons/chevron-down';
+import { PageToc, type PageTocSection } from '@/components/page-toc/page-toc';
 import { PropsTable } from '@/components/props-table/props-table';
 import { getComponentsCatalog, getComponentsTree } from '@/content/catalog';
 import { getComponentProps } from '@/content/props';
@@ -70,16 +74,30 @@ export default async function ComponentPage({ params }: PageProps) {
     { label: record.label, url: record.url },
   ];
 
+  // The table of contents' rows and the anchors they scroll to. The first
+  // section is the header and the demo together, so the component's own row
+  // stays current for as long as the shader is on screen.
+  const sections: PageTocSection[] = [
+    { id: slug, label: record.label },
+    { id: 'usage', label: 'Usage' },
+    { id: 'api-reference', label: 'API Reference' },
+  ];
+
   return (
     <main>
       <Breadcrumbs className={styles.breadcrumbs} crumbs={crumbs} />
-      <header className={styles.header}>
-        <h1 className={styles.title}>{record.label}</h1>
-        <p className={styles.description}>{record.description}</p>
-      </header>
-      <Island />
+      <div id={slug}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>{record.label}</h1>
+          <p className={styles.description}>{record.description}</p>
+        </header>
+        <Island />
+      </div>
+      {/* Sits right after the demo grid so its lines can measure back up to
+          the shader's center; see .dock in page-toc.module.css. */}
+      <PageToc sections={sections} />
       <div className={styles.sections}>
-        <section>
+        <section className={styles.section} id="usage">
           <h2 className={styles.sectionTitle}>Usage</h2>
           {entry.usageNotes === undefined ? null : (
             <div className={styles.prose}>{entry.usageNotes}</div>
@@ -87,7 +105,7 @@ export default async function ComponentPage({ params }: PageProps) {
           <CodeBlock source={deriveUsageImport(entry.usageSnippet)} />
           <CodeBlock source={entry.usageSnippet} />
         </section>
-        <section>
+        <section className={styles.section} id="api-reference">
           <h2 className={styles.sectionTitle}>API Reference</h2>
           <p className={styles.prose}>Customize the shader with the following props.</p>
           <PropsTable rows={await getComponentProps(slug)} />
