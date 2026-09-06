@@ -71,7 +71,7 @@ function GodRaysControls() {
       <ListInput<string>
         createItem={createColor}
         itemLabel="color"
-        label="Colors (near to far)"
+        label="Colors"
         max={MAX_COLORS}
         min={MIN_COLORS}
         path="colors"
