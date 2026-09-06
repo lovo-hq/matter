@@ -27,8 +27,6 @@ import { INITIAL, type Params } from './params';
 
 const DotFieldScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'DotField' } as const;
-
 function DotFieldDemo() {
   const params = useSnapshot<Params>();
 
@@ -47,7 +45,7 @@ function DotFieldDemo() {
 
 function DotFieldControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<DotField>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={4} min={0} path="speed" step={0.05} />
         <SliderInput label="Amplitude" max={0.9} min={0} path="amplitude" step={0.01} />

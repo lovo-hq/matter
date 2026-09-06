@@ -26,8 +26,6 @@ import { type DitherParams, INITIAL } from './params';
 
 const DitherScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'Dither', siblings: ['<MeshGradient />'] } as const;
-
 const PATTERN_OPTIONS = [
   { label: 'Bayer 2x2', value: 'bayer-2x2' },
   { label: 'Bayer 4x4', value: 'bayer-4x4' },
@@ -61,7 +59,7 @@ function DitherDemo() {
 
 function DitherControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<Dither>">
+    <ControlPanel>
       <Section title="Dither">
         <SelectInput label="Pattern" options={PATTERN_OPTIONS} path="pattern" />
         <SliderInput label="Pixel size" max={24} min={1} path="pixelSize" step={1} />

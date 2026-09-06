@@ -30,8 +30,6 @@ import { INITIAL, MAX_STOPS, MIN_STOPS, type Params, type PlainColorStop } from 
 
 const SimplexNoiseScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'SimplexNoise' } as const;
-
 /** A new ramp color clones the last one so the addition is visible. */
 const createStop = (stops: readonly PlainColorStop[]): PlainColorStop => {
   const last = stops[stops.length - 1];
@@ -56,7 +54,7 @@ function SimplexNoiseDemo() {
 
 function SimplexNoiseControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<SimplexNoise>">
+    <ControlPanel>
       <Section title="Field">
         <SliderInput label="Scale" max={30} min={0.5} path="scale" step={0.1} />
         <SliderInput label="Speed" max={2} min={0} path="speed" step={0.01} />

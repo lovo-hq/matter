@@ -28,8 +28,6 @@ import { type GodRaysParams, INITIAL, MAX_COLORS, MIN_COLORS } from './params';
 
 const GodRaysScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'GodRays' } as const;
-
 /** A new color clones the last one in the list so the addition is visible. */
 const createColor = (colors: readonly string[]): string =>
   colors[colors.length - 1] ?? 'oklch(0.8 0.1 80)';
@@ -51,7 +49,7 @@ function GodRaysDemo() {
 
 function GodRaysControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<GodRays>">
+    <ControlPanel>
       <Section title="Origin">
         <SliderInput label="Center X" max={1.5} min={-0.5} path="centerX" step={0.01} />
         <SliderInput label="Center Y" max={1.5} min={-0.5} path="centerY" step={0.01} />

@@ -1,0 +1,120 @@
+/* The demo page's two-column grid (shader beside controls) and the sticky
+   controls column with its scroll fade. The Playwright fixture pins
+   [data-shader-demo] to 560px under ?visualTest=1, so nothing in here can
+   move the visual baselines; only the shader wrapper's own aspect can. */
+
+/* Shader column at 4xl and the control panel at 2xs, the mock's widths.
+   The horizontal inset comes from the docs shell's main column, so the grid
+   pads only vertically. */
+.layout {
+  /* What the shader column resolves to: the 4xl cap, or whatever is left
+     after the controls column and the gap. Mirrors the grid's track sizing
+     below, and the controls column reads it to match the shader's height. */
+  --stage-width: min(var(--container-4xl), calc(100cqw - var(--spacing-4) - var(--container-2xs)));
+
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, var(--container-4xl)) minmax(0, var(--container-2xs));
+  gap: var(--spacing-4);
+  align-items: start;
+  padding: var(--spacing-6) 0;
+}
+
+/* Sticks 24px below the top of the viewport and never grows past the
+   shader beside it, whose height is 3:2 of the column's width (the ratio
+   [data-shader-demo] sets in globals.css), or past the viewport, whichever
+   is shorter. Sized from the grid's width rather than measured, so the cap
+   holds from the first paint with no jump. The overflow belongs to the
+   scroller inside, not to this element, so the fade can sit on top of the
+   column without scrolling away with the panel. */
+.controls {
+  position: sticky;
+  top: var(--spacing-6);
+  max-height: min(calc(var(--stage-width) * 2 / 3), calc(100vh - var(--spacing-12)));
+}
+
+/* The scroll area root: the column's height cap flows down to the viewport
+   through `inherit`, and the scrollbar and fade position against this box. */
+.scroller {
+  position: relative;
+  max-height: inherit;
+}
+
+/* The element that scrolls. Base UI hides the native scrollbar here. It
+   carries the panel's corner radius so the panel's sticky title row, which
+   sits at this element's top edge once the panel has scrolled, is clipped
+   to the same rounded corners the panel itself has. */
+.viewport {
+  max-height: inherit;
+  overflow-y: auto;
+  border-radius: var(--radius-xl);
+  overscroll-behavior: contain;
+}
+
+/* The custom scrollbar: an 8px track inset from the panel's edge and its
+   rounded corners, shown only while the reader scrolls (Base UI keeps
+   data-scrolling on for half a second after the last scroll) or while the
+   pointer is on the bar, so it can be grabbed. Otherwise it fades out and
+   the controls have the panel's full width. */
+.scrollbar {
+  z-index: 2;
+  width: var(--spacing-2);
+  margin: var(--spacing-1);
+  opacity: 0;
+  transition: opacity var(--fade-sm) var(--ease-hover);
+}
+
+.scroller[data-scrolling] .scrollbar,
+.scrollbar:hover {
+  opacity: 1;
+}
+
+.thumb {
+  background: var(--gray-600);
+  border-radius: var(--radius-full);
+}
+
+/* The mock's "reveal": 64px of the panel's own color fading upward over its
+   bottom edge, telling the reader there are more controls below. Base UI
+   sets data-overflow-y-end on the root while there is something left to
+   scroll to, so a short panel keeps its last row at full strength. The
+   corners match the panel's radius so the gradient stays inside its
+   outline. */
+.fade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: var(--spacing-16);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  background: linear-gradient(
+    to top,
+    var(--bg-muted) 0%,
+    color-mix(in srgb, var(--bg-muted) 80%, transparent) 39%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fade-sm) var(--ease-out);
+}
+
+.scroller[data-overflow-y-end] .fade {
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .controls {
+    position: static;
+    max-height: none;
+  }
+
+  .scroller,
+  .viewport {
+    max-height: none;
+  }
+}

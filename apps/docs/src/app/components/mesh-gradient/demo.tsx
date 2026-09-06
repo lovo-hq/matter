@@ -31,8 +31,6 @@ import { INITIAL, PALETTE_SIZE, type Params } from './params';
 
 const MeshGradientScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'MeshGradient' } as const;
-
 /** A new palette color clones the last one in its list so the addition is visible. */
 const createColor = (colors: readonly string[]): string =>
   colors[colors.length - 1] ?? 'oklch(0.6 0.15 250)';
@@ -54,7 +52,7 @@ function MeshGradientDemo() {
 
 function MeshGradientControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<MeshGradient>">
+    <ControlPanel>
       <Section title="Motion">
         <SliderInput label="Speed" max={5} min={0} path="speed" step={0.01} />
         <SliderInput label="Frequency" max={20} min={0.5} path="frequency" step={0.1} />

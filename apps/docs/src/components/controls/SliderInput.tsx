@@ -1,15 +1,20 @@
 'use client';
 
 /**
- * A number prop: a draggable track plus an editable readout. Base UI's Slider
+ * A number prop: a draggable bar plus an editable readout. Base UI's Slider
  * handles pointer capture, arrow-key stepping, Page Up/Down (largeStep), and
- * the ARIA value attributes; NumberField handles typed entry and clamping.
- * onValueChange fires continuously through a drag, which is fine here — numeric
- * props travel through stable uniform nodes on the GPU side and cost nothing per frame.
+ * the ARIA value attributes; NumberReadout handles typed entry and clamping.
+ * onValueChange fires continuously through a drag, which is fine here: numeric
+ * props travel through stable uniform nodes on the GPU side and cost nothing
+ * per frame. Inside a list row the visible label drops away, since the row
+ * already names the control.
  */
-import { NumberField } from '@base-ui/react/number-field';
 import { Slider } from '@base-ui/react/slider';
 
+import { useListRowTrail } from './context';
+import styles from './controls.module.css';
+import { decimalsForStep } from './decimals';
+import { NumberReadout } from './NumberReadout';
 import type { PathInput } from './store';
 import { usePropValue, useSetProp } from './useControl';
 
@@ -23,13 +28,9 @@ export interface SliderInputProps {
   step: number;
   /** Jump size for Page Up/Down. Defaults to ten steps. */
   largeStep?: number;
-  /** Decimal places in the readout. Defaults to what `step` implies. */
+  /** Most decimal places the readout shows. Defaults to what `step` implies. */
   decimals?: number;
 }
-
-/** 0.05 -> 2, 1 -> 0. Matches the readout's decimal places to what `step` implies. */
-const decimalsForStep = (step: number) =>
-  step >= 1 ? 0 : Math.min(4, Math.ceil(-Math.log10(step)));
 
 export function SliderInput({
   path,
@@ -42,51 +43,52 @@ export function SliderInput({
 }: SliderInputProps) {
   const value = usePropValue<number>(path);
   const setProp = useSetProp();
+  const trail = useListRowTrail();
+  const inRow = trail.length > 0;
 
+  // "Speed for line 2" rather than a bare "Speed" repeated on every row, so
+  // a screen reader can tell the fields apart.
+  const name = inRow ? `${label} for ${trail.join(' > ')}` : label;
   const fractionDigits = decimals ?? decimalsForStep(step);
-  const format: Intl.NumberFormatOptions = {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  };
+  const format: Intl.NumberFormatOptions = { maximumFractionDigits: fractionDigits };
 
   const commit = (next: number) => {
     setProp(path, Math.min(max, Math.max(min, next)));
   };
 
   return (
-    <div className="controls-field">
+    <div className={styles.field}>
       <Slider.Root
-        className="slider-root"
+        className={styles.sliderRoot}
         format={format}
         largeStep={largeStep ?? step * 10}
         max={max}
         min={min}
         onValueChange={commit}
         step={step}
+        // Keeps the whole 4px thumb inside the track at 0 and at max, instead
+        // of centering it on the edge where half of it would be clipped.
+        thumbAlignment="edge"
         value={value}
       >
-        <Slider.Label className="controls-field-label">{label}</Slider.Label>
-        <Slider.Control className="slider-control">
-          <Slider.Track className="slider-track">
-            <Slider.Indicator className="slider-indicator" />
-            <Slider.Thumb className="slider-thumb" />
+        <Slider.Label className={inRow ? styles.srOnly : styles.fieldLabel}>{name}</Slider.Label>
+        <Slider.Control className={styles.sliderControl}>
+          <Slider.Track className={styles.sliderTrack}>
+            <Slider.Indicator className={styles.sliderIndicator} />
+            <Slider.Thumb className={styles.sliderThumb} />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
-      <NumberField.Root
-        format={format}
+      <NumberReadout
+        ariaLabel={`${name} value`}
+        decimals={fractionDigits}
+        largeStep={largeStep ?? step * 10}
         max={max}
         min={min}
-        onValueChange={(next) => {
-          if (next !== null) commit(next);
-        }}
+        onCommit={commit}
         step={step}
         value={value}
-      >
-        <NumberField.Group>
-          <NumberField.Input aria-label={`${label} value`} className="number-input" />
-        </NumberField.Group>
-      </NumberField.Root>
+      />
     </div>
   );
 }

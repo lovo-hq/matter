@@ -1,0 +1,813 @@
+/* Styles for the demo control panel and everything inside it: the shell and
+   its groups, the slider, number, select, and color controls, the color
+   popover, and repeatable lists. Sizes follow the Figma controller mock: a
+   2xs panel with 16px padding, 24px-tall rows, and 12px text. The two-column
+   demo grid the panel sits in lives in demo-layout.module.css. */
+
+/* ---- Panel shell ---- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background: var(--bg-muted);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-xs);
+  line-height: var(--leading-4);
+}
+
+/* The title row stays put while the controls scroll under it. It bleeds
+   into the panel's padding so it covers the panel edge to edge, carries the
+   rule the first group would otherwise draw, and is dark glass: 90% of the
+   panel's gray with the scrolled controls blurred behind it. The scroller
+   (demo-layout.module.css) has the panel's corner radius, which is what
+   clips this row's corners once the panel's own top has scrolled away. */
+.titleRow {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4)) 0;
+  padding: var(--spacing-4);
+  background: color-mix(in srgb, var(--bg-muted) 90%, transparent);
+  border-bottom: var(--border-width-1) solid var(--white-a5);
+  backdrop-filter: blur(12px);
+}
+
+/* The first group's rule now belongs to the title row above it. Pulling
+   the group up by the panel's gap leaves its own 12px of air between the
+   rule and its header, the mock's spacing. */
+.titleRow + .section {
+  margin-top: calc(-1 * var(--spacing-4));
+  border-top: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--fg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-5);
+}
+
+/* ---- Icon buttons ---- */
+
+/* The 24px square behind Reset, Add, and Remove: a 16px glyph on a
+   transparent ground that only shows its box on hover and focus. */
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  padding: 0;
+  background: transparent;
+  color: var(--gray-200);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--fade-xs) var(--ease-hover),
+    background-color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover:not(:disabled) {
+    background: var(--white-a5);
+    color: var(--fg);
+  }
+}
+
+.iconButton:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.iconButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- Text buttons ---- */
+
+/* The page header's Copy React button, reused for Reset: a 32px boxed
+   button with a 16px glyph and 14px text. Hover brightens, and the press
+   is felt through a slight scale rather than seen. */
+.textButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: var(--spacing-8);
+  padding: 0 var(--spacing-2);
+  background: var(--bg-muted);
+  color: var(--gray-50);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--leading-5);
+  cursor: pointer;
+  transition:
+    color var(--fade-xs) var(--ease-hover),
+    background-color var(--fade-xs) var(--ease-hover),
+    transform var(--duration-sm) var(--ease-out);
+}
+
+.textButton svg {
+  color: var(--gray-200);
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .textButton:hover {
+    background: var(--white-a5);
+    color: var(--fg);
+  }
+
+  .textButton:hover svg {
+    color: var(--fg);
+  }
+}
+
+.textButton:active {
+  transform: scale(0.97);
+}
+
+.textButton:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Groups ---- */
+
+/* Every group opens with a hairline rule and 12px of air, then a 24px header
+   row. The panel's own 16px gap sits above the rule, so group to group reads
+   as 16, rule, 12: the mock's rhythm. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+  padding-top: var(--spacing-3);
+  border-top: var(--border-width-1) solid var(--white-a5);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--spacing-6);
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--gray-50);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---- Rows (label beside control) ---- */
+
+/* One 24px row: the label takes whatever width is left and the control sits
+   against the right edge at the mock's fixed size. */
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
+}
+
+.fieldLabel {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg-muted);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Slider ---- */
+
+/*
+ * Slider.Root renders its own wrapper div around Label and Control. Without
+ * this, that wrapper becomes .field's flex item instead of Label and Control
+ * themselves, and the label could no longer push the control to the right
+ * edge. `display: contents` removes the wrapper from layout so its children
+ * take its place as direct flex items, same as SelectInput's label and
+ * trigger pair.
+ */
+.sliderRoot {
+  display: contents;
+}
+
+/* The mock's slider is a 96px bar whose lime fill is the value, with no
+   thumb. The control is the whole hit area: press or drag anywhere on it and
+   Base UI moves the value there. */
+.sliderControl {
+  position: relative;
+  flex: none;
+  width: 6rem;
+  height: var(--spacing-6);
+  touch-action: none;
+  cursor: grab;
+}
+
+/* Base UI sets data-dragging on every slider part while a drag is in
+   flight, which is what keeps the closed hand and the lit thumb on through
+   a drag that wanders off the 4px thumb or off the control entirely. */
+.sliderControl[data-dragging] {
+  cursor: grabbing;
+}
+
+.sliderTrack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gray-800);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+}
+
+/* Base UI sizes the indicator to the value as a percentage of the track.
+   Only its left corners are rounded: the right edge sits under the thumb. */
+.sliderIndicator {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+/* The mock's thumb: a 4px lime-50 bar the full height of the track, sitting
+   on the fill's edge. Base UI positions it at the value and keeps the
+   keyboard focus inside it (on a hidden range input); the focus ring is
+   drawn on the track rather than on this sliver. */
+.sliderThumb {
+  width: 4px;
+  height: 100%;
+  background: var(--lime-50);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition:
+    background-color var(--fade-xs) var(--ease-hover),
+    transform var(--duration-sm) var(--ease-out);
+}
+
+/* The thumb lights up to lime-25 and widens from 4px to 6px when the
+   pointer is anywhere on the control, not only on the thumb's own 4px,
+   since the whole bar is the hit area: the bar is saying it can be dragged.
+   Width only, because the track clips anything taller, and on a 4px thumb
+   a percent or two of scale would be invisible. Base UI positions the thumb
+   with `translate`, a separate property, so the scale composes with it.
+   Hover is gated to fine pointers so a tap on touch does not leave it lit;
+   the drag state below is not, so touch feels the grab too. The popover's
+   channel sliders keep their ring thumb out of both. */
+@media (hover: hover) and (pointer: fine) {
+  .sliderControl:hover .sliderThumb:not(.channelThumb) {
+    background: var(--lime-25);
+    transform: scaleX(1.5);
+  }
+}
+
+.sliderControl[data-dragging] .sliderThumb:not(.channelThumb) {
+  background: var(--lime-25);
+  transform: scaleX(1.5);
+}
+
+.sliderTrack:has(:focus-visible) {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Number readout ---- */
+
+/* The box carries the chrome and the focus ring; the input inside is bare,
+   so a unit can sit beside the digits without breaking the box's edge. The
+   box is Base UI's scrub area too, hence the sideways-resize cursor: drag
+   to slide the value, click to type. */
+.numberBox {
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: 2.5rem;
+  height: var(--spacing-6);
+  background: var(--gray-800);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  cursor: ew-resize;
+}
+
+.numberBox:has(:focus-visible) {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The mock's percent field: 48px, digits on the left, the unit in gray.
+   6px of side padding rather than the mock's 8 so "100" and "%" both fit. */
+.numberBoxWithUnit {
+  gap: var(--spacing-px);
+  width: 3rem;
+  padding: 0 var(--spacing-1-5);
+}
+
+.numberInput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--spacing-1);
+  background: transparent;
+  color: var(--fg);
+  border: 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  cursor: inherit;
+  outline: none;
+}
+
+/* Once the input has focus the reader is typing, so the caret cursor
+   returns; a drag from here still scrubs. */
+.numberInput:focus {
+  cursor: text;
+}
+
+/* The stand-in pointer while the real one is locked during a scrub. Base UI
+   positions it with a transform; this only gives it a shape and keeps it
+   out of the way of hit-testing. */
+.scrubCursor {
+  display: flex;
+  align-items: center;
+  color: var(--fg);
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px var(--black)) drop-shadow(0 0 1px var(--black));
+}
+
+.scrubCursorLeft {
+  transform: scaleX(-1);
+}
+
+.numberBoxWithUnit .numberInput {
+  width: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.numberUnit {
+  flex: none;
+  color: var(--gray-200);
+}
+
+/* ---- Select ---- */
+
+.selectTrigger {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-2);
+  width: 8.75rem;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selectTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.selectValue {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectIcon {
+  display: flex;
+  flex: none;
+  color: var(--gray-200);
+}
+
+/* Portaled to <body>, so it inherits none of the panel's type and sets its
+   own. Base UI opens the list with the selected item laid over the trigger,
+   shifting the popup so the item's text sits exactly on the trigger's text.
+   The popup has no padding of its own and takes the trigger's width from
+   --anchor-width, and each item is the trigger's shape (24px tall, 8px side
+   padding), so the selected item lands on the trigger box for box and the
+   whole list reads as the trigger unrolled. */
+.selectPopup {
+  box-sizing: border-box;
+  width: var(--anchor-width);
+  padding: 0;
+  overflow: hidden;
+  background: var(--gray-800);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  font-size: var(--font-size-xs);
+  line-height: var(--leading-4);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform var(--duration-sm) var(--ease-out),
+    opacity var(--fade-sm) var(--ease-out);
+}
+
+.selectPopup[data-starting-style],
+.selectPopup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.selectItem {
+  display: flex;
+  align-items: center;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  cursor: pointer;
+  outline: none;
+}
+
+/* The sidebar's active-row treatment, so "selected" means the same thing
+   across the site. */
+.selectItem[data-highlighted] {
+  background: var(--lime-900);
+  color: var(--lime-100);
+}
+
+/* ---- Color picker ---- */
+
+/* One button drawn as two boxes, the swatch and the printed value, so the
+   focus ring wraps both and either one opens the popover. */
+.swatchTrigger {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: 0;
+  background: transparent;
+  color: var(--fg);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  cursor: pointer;
+}
+
+.swatchTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.swatch {
+  flex: none;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+}
+
+/* The oklch() string is longer than 80px allows, so it clips with an
+   ellipsis; the full value is in the popover's text field. */
+.swatchValue {
+  display: block;
+  width: 5rem;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  line-height: calc(var(--spacing-6) - 2 * var(--border-width-1));
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The picker. Its width is the list row minus the remove button, so it
+   spans the row's name, swatch, value, and position field exactly, and it
+   opens from the row's left edge (see ColorInput's anchor). Same gray-900
+   as the panel, so the hairline border and the shadow are what separate
+   the two. */
+.colorPopup {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  width: calc(var(--container-2xs) - 2 * var(--spacing-4) - var(--spacing-6) - var(--spacing-1));
+  padding: var(--spacing-2);
+  background: var(--bg-muted);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  font-size: var(--font-size-xs);
+  line-height: var(--leading-4);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform var(--duration-sm) var(--ease-out),
+    opacity var(--fade-sm) var(--ease-out);
+}
+
+.colorPopup[data-starting-style],
+.colorPopup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* A label over its control, the picker's stacked layout. */
+.pickerField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.pickerLabel {
+  color: var(--fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pickerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* The colour preview. Fixed height in every state: a box that appears and
+   disappears as the colour crosses a gamut edge would resize the panel under
+   a pointer that is mid-drag, which is exactly when it must not move. */
+.gamutPreview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2);
+  height: 60px;
+}
+
+.gamutPreviewSplit {
+  grid-template-columns: 1fr 1fr;
+}
+
+.gamutSwatch {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--spacing-1);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+}
+
+/* Unpainted: this colour has no honest rendering on this screen. */
+.gamutEmpty {
+  align-items: center;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+/* Dark chip behind the caption so it stays readable on any swatch colour. */
+.gamutLabel {
+  padding: var(--spacing-px) var(--spacing-1);
+  background: var(--black-a70);
+  color: var(--white);
+  border-radius: var(--radius-xs);
+}
+
+/* The channel tracks are the panel's slider track at full width: a picture
+   of the channel's reachable range painted onto the canvas inside. */
+.channelControl {
+  width: 100%;
+}
+
+/* Unreachable stretches are painted transparent, so the track's own
+   background shows through there. */
+.channelCanvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The thumb: an 8px hollow bar the full height of the track, white ring
+   inside a dark ring, so it stays legible over any color on the track and
+   equally over the bare track where none is reachable. The mock draws it at
+   6px; 8 reads less like a hairline at the track's 24px height. */
+.channelThumb {
+  width: 8px;
+  background: transparent;
+  border: var(--border-width-1) solid var(--black-a90);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--white-a90);
+  transition: transform var(--duration-sm) var(--ease-out);
+}
+
+/* The same grab cue as the panel's sliders, at a gentler 1.25 (8px to
+   10px): a transform scales the ring's strokes along with it, and at 1.5
+   the thickened verticals start to read. */
+@media (hover: hover) and (pointer: fine) {
+  .channelControl:hover .channelThumb {
+    transform: scaleX(1.25);
+  }
+}
+
+.channelControl[data-dragging] .channelThumb {
+  transform: scaleX(1.25);
+}
+
+.colorTextInput {
+  flex: 1;
+  min-width: 0;
+  height: var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  background: var(--gray-800);
+  color: var(--fg);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.colorTextInput:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.colorTextInput[aria-invalid='true'] {
+  border-color: #d9534f;
+}
+
+/* The picker's copy button: a boxed sibling of the text field, unlike the
+   panel's bare icon buttons, because it sits in a row of boxes. */
+.copyButton {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  padding: 0;
+  background: var(--gray-800);
+  color: var(--gray-200);
+  border: var(--border-width-1) solid var(--white-a5);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copyButton:hover {
+    color: var(--fg);
+  }
+}
+
+.copyButton:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.copyButton[data-copied] {
+  color: var(--accent);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Repeatable lists ---- */
+
+/* The mock sets list headers ("Stops", "Lines") in white where plain group
+   headers ("Motion") are gray-50. */
+.listTitle {
+  color: var(--fg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One 24px line: the row's name takes the slack on the left, its controls
+   and the remove button sit against the right edge. */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
+}
+
+.rowLabel {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg-muted);
+  text-transform: capitalize;
+}
+
+/* ---- Collapsible rows ---- */
+
+/* Lines sit 4px apart where flat rows sit 8, the mock's rhythm for a list
+   whose rows are headings rather than controls. */
+.listCollapsible {
+  gap: var(--spacing-1);
+}
+
+.disclosure {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.disclosureHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: var(--spacing-6);
+}
+
+/* The row's name as a button: caret when closed, chevron when open, both
+   from the icon set, then the name. Hover brightens the name only. */
+.disclosureTrigger {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--gray-200);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.disclosureTrigger .rowLabel {
+  transition: color var(--fade-xs) var(--ease-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .disclosureTrigger:hover .rowLabel {
+    color: var(--fg);
+  }
+}
+
+.disclosureTrigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.disclosureOpenIcon,
+.disclosureTrigger[data-panel-open] .disclosureClosedIcon {
+  display: none;
+}
+
+.disclosureTrigger[data-panel-open] .disclosureOpenIcon {
+  display: block;
+}
+
+/* Base UI measures the panel and exposes its height as a custom property,
+   so open and close animate as a height change, the same deliberate
+   exception to transform-and-opacity the props table's accordion makes;
+   see docs/development/animation.md. Under Reduce Motion the duration
+   token is zero and the panel simply appears. */
+.disclosurePanel {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height var(--duration-sm) var(--ease-out);
+}
+
+.disclosurePanel[data-starting-style],
+.disclosurePanel[data-ending-style] {
+  height: 0;
+}
+
+/* 4px under the row's name, then the nested list. A list inside a
+   disclosure drops the rule and air a top-level group opens with: the
+   folded row is its heading already. */
+.disclosureContents {
+  padding-top: var(--spacing-1);
+}
+
+.disclosureContents .section {
+  padding-top: 0;
+  border-top: 0;
+}

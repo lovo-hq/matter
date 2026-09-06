@@ -35,8 +35,6 @@ import { INITIAL, MAX_STOPS, MIN_STOPS, type Params, type PlainColorStop } from 
 
 const FractalNoiseScene = dynamic(() => import('./scene'), { ssr: false });
 
-const COPY_CONFIG = { componentName: 'FractalNoise' } as const;
-
 /**
  * Keeps the Contrast/Balance sliders in step with the component's per-style
  * defaults: switching Style writes that style's dial defaults into the store,
@@ -86,7 +84,7 @@ function FractalNoiseDemo() {
 
 function FractalNoiseControls() {
   return (
-    <ControlPanel copyConfig={COPY_CONFIG} title="<FractalNoise>">
+    <ControlPanel>
       <Section title="Texture">
         <SelectInput
           label="Style"
