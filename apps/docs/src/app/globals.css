@@ -192,6 +192,20 @@ a:hover {
   aspect-ratio: 3 / 2;
   overflow: hidden;
   isolation: isolate;
+  /* The mock's frame: the panel's corner radius, with the hairline drawn by
+     the overlay below rather than a border, so the canvas keeps the full
+     box and the renderer's size never depends on the chrome around it. */
+  border-radius: var(--radius-xl);
+}
+
+[data-shader-demo]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: var(--border-width-2) solid var(--white-a5);
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 /* Under Playwright the visual fixture stamps data-visual-test on <html>
@@ -199,9 +213,16 @@ a:hover {
    every baseline was captured at. The suite screenshots the canvas alone, so
    its size must not depend on the chrome around it: without this, a change
    to the shell, sidebar, or gutters re-rolls all fifteen baselines. 560px is
-   what the 1280px test viewport produced before the pin existed. */
+   what the 1280px test viewport produced before the pin existed. The frame
+   chrome comes off too, so the canvas shot holds the same pixels it always
+   has: square corners and no hairline over the edge. */
 :root[data-visual-test] [data-shader-demo] {
   width: 560px;
+  border-radius: 0;
+}
+
+:root[data-visual-test] [data-shader-demo]::after {
+  display: none;
 }
 
 /* The search modal is a native <dialog>: the element itself is the panel
