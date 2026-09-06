@@ -67,7 +67,7 @@ function AuroraControls() {
         createItem={createStop}
         insertIndex={newStopIndex}
         itemLabel="stop"
-        label="Stops (low to high altitude)"
+        label="Stops"
         max={MAX_STOPS}
         min={MIN_STOPS}
         path="stops"
