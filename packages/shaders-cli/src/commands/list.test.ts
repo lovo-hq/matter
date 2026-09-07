@@ -26,7 +26,7 @@ describe('runList', () => {
     const output = log.mock.calls.map((c) => c[0]).join('\n');
 
     expect(output).toContain('synthetic-component');
-    expect(output).toContain('tier 1');
+    expect(output).toContain('A tiny synthetic component');
   });
 
   it('reads shaders.config.json when --registry is not supplied', async () => {

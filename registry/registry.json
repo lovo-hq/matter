@@ -8,7 +8,6 @@
       "description": "Animated linear gradient. The simplest, foundational Shaders component.",
       "dependencies": ["@camp-dev/shaders", "@camp-dev/shaders-react", "react", "three"],
       "uses_primitives": ["colorRamp", "mix", "uv", "vec2", "vec3", "uniform"],
-      "tier": 1,
       "category": "gradients"
     },
     "simplex-noise": {
@@ -26,7 +25,6 @@
         "vec3",
         "uniform"
       ],
-      "tier": 1,
       "category": "noise"
     },
     "dot-field": {
@@ -47,7 +45,6 @@
         "vec4",
         "uniform"
       ],
-      "tier": 1,
       "category": "patterns"
     },
     "grain": {
@@ -56,7 +53,6 @@
       "description": "Additive or subtractive film grain overlay. Stacks on top of any base component inside <ShaderScene>.",
       "dependencies": ["@camp-dev/shaders", "@camp-dev/shaders-react", "react", "three"],
       "uses_primitives": ["grain", "uv", "vec4", "uniform", "floor"],
-      "tier": 1,
       "category": "lens-film"
     },
     "wave-lines": {
@@ -81,7 +77,6 @@
         "uniform",
         "colorRamp"
       ],
-      "tier": 1,
       "category": "scenes"
     },
     "mesh-gradient": {
@@ -104,7 +99,6 @@
         "pow",
         "uniform"
       ],
-      "tier": 1,
       "category": "gradients"
     },
     "aurora": {
@@ -122,7 +116,6 @@
         "vec4",
         "uniform"
       ],
-      "tier": 1,
       "category": "scenes"
     },
     "vignette": {
@@ -131,7 +124,6 @@
       "description": "Radial darkening at the canvas edges. Stacks on top of any base component inside <ShaderScene>.",
       "dependencies": ["@camp-dev/shaders", "@camp-dev/shaders-react", "react", "three"],
       "uses_primitives": ["uv", "vec2", "vec3", "vec4", "mix", "smoothstep", "length", "uniform"],
-      "tier": 1,
       "category": "lens-film"
     },
     "radial-gradient": {
@@ -150,7 +142,6 @@
         "vec2",
         "uniform"
       ],
-      "tier": 1,
       "category": "gradients"
     },
     "god-rays": {
@@ -177,7 +168,6 @@
         "vec4",
         "uniform"
       ],
-      "tier": 1,
       "category": "scenes"
     },
     "conic-gradient": {
@@ -186,7 +176,6 @@
       "description": "A color ramp sweeping clockwise around a center point, with pinwheel repeats and rotation. Completes the CSS gradient trio with LinearGradient and RadialGradient.",
       "dependencies": ["@camp-dev/shaders", "@camp-dev/shaders-react", "react", "three"],
       "uses_primitives": ["colorRamp", "atan2", "fract", "uv", "vec2", "uniform"],
-      "tier": 1,
       "category": "gradients"
     },
     "dither": {
@@ -202,7 +191,6 @@
         "vec3",
         "vec4"
       ],
-      "tier": 1,
       "category": "retro-glitch"
     },
     "voronoi": {
@@ -226,7 +214,6 @@
         "uv",
         "vec2"
       ],
-      "tier": 1,
       "category": "noise"
     },
     "fractal-noise": {
@@ -248,7 +235,6 @@
         "uv",
         "vec3"
       ],
-      "tier": 1,
       "category": "noise"
     },
     "blobs": {
@@ -269,7 +255,6 @@
         "vec2",
         "vec4"
       ],
-      "tier": 1,
       "category": "scenes"
     }
   }
