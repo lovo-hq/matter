@@ -93,7 +93,7 @@
     },
     "sourcePath": {
       "type": "string",
-      "pattern": "^(?!\\/)(?!.*(^|\\/)\\.\\.(\\/|$)).*\\.tsx?$",
+      "pattern": "^(?![\\/\\\\]|[A-Za-z]:)(?!.*(^|\\/)\\.\\.(\\/|$))[^\\\\]*\\.tsx?$",
       "description": "A .ts or .tsx path relative to the registry root. Must stay inside it: the CLI writes these into a user's project, and refuses any path that resolves outside the configured components directory."
     }
   }

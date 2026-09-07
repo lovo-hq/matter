@@ -56,13 +56,17 @@ export function parseFrontmatter(data: unknown, sourcePath: string): DocsFrontma
 // from descriptions to the path pattern, lives here, and `.meta({ id })` names
 // the two shapes that come out as shared definitions.
 
-// A .ts or .tsx path relative to the registry root, kept inside it: no leading
-// slash and no `..` segment. Zod copies the regex's source into the JSON
-// Schema `pattern`, where V8 spells each `/` as `\/`. JSON Schema reads
-// patterns as ECMA 262 regexes, so the escape changes nothing.
+// A .ts or .tsx path relative to the registry root, kept inside it: no
+// leading slash or backslash, no drive letter, no backslash anywhere (the
+// manifest spells paths with forward slashes only), and no `..` segment. The
+// CLI re-checks containment when it writes, so this is the authoring-time
+// guard that keeps the schema's promise honest rather than the last line.
+// Zod copies the regex's source into the JSON Schema `pattern`, where V8
+// spells each `/` as `\/`. JSON Schema reads patterns as ECMA 262 regexes,
+// so the escape changes nothing.
 const sourcePathSchema = z
   .string()
-  .regex(/^(?!\/)(?!.*(^|\/)\.\.(\/|$)).*\.tsx?$/)
+  .regex(/^(?![\/\\]|[A-Za-z]:)(?!.*(^|\/)\.\.(\/|$))[^\\]*\.tsx?$/)
   .meta({
     id: 'sourcePath',
     description:
