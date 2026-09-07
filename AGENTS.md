@@ -114,6 +114,7 @@ These rules exist because Shaders doubles as a shader-learning project for its a
 
   Verify a change by building both ways and checking whether `apps/docs/out/dev/` exists. This is also the convention a throwaway prototype route must follow. The `prototype` skill's default advice is to hide a variant switcher behind `process.env.NODE_ENV !== 'production'`, and that check does not work here for the same reason: Playwright builds the production bundle.
 - **`apps/docs/tsconfig.json` uses a relative `extends` on purpose.** It points at `../../tooling/tsconfig/base.json` rather than the `@shaders/tsconfig` package form every other workspace uses. Fallow's resolver drops `paths` when `extends` goes through a workspace package. Don't "normalize" it.
+- **`registry/registry.schema.json` is generated, so never edit it by hand.** `registrySchema` in `apps/docs/src/content/schema.ts` is the source, and `apps/docs/src/content/registry-schema.test.ts` emits the file from it with `z.toJSONSchema`. The same test fails in CI when the committed file is stale. Edit the Zod schema, then regenerate with `pnpm --filter @shaders/docs exec vitest run -u src/content/registry-schema.test.ts`. Prettier ignores the file. Adding a sidebar group is one entry in `taxonomy.ts` plus that regeneration.
 
 ## Technical gotchas (read before touching TSL or the build)
 

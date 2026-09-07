@@ -98,11 +98,11 @@ describe('registry.json declares every file its components import', () => {
     expect(schemaRef).toBeTypeOf('string');
 
     const schema = JSON.parse(await readFile(join(REGISTRY_ROOT, schemaRef!), 'utf-8')) as {
-      $defs: { entry: { properties: Record<string, unknown> } };
+      definitions: { entry: { properties: Record<string, unknown> } };
     };
 
     // The schema has to know about `files`, or it would reject the manifest it
     // is meant to describe.
-    expect(Object.keys(schema.$defs.entry.properties)).toContain('files');
+    expect(Object.keys(schema.definitions.entry.properties)).toContain('files');
   });
 });

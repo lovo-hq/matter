@@ -2,8 +2,9 @@
  * The component taxonomy: which leaf group each registry category belongs
  * to, which tier each group sits in, and how to fold a flat list of catalog
  * records into that tree. The registry stores one word per component and
- * this file owns everything else, so adding a group is one entry here plus
- * the enum in registry/registry.schema.json. The sidebar, prev and next
+ * this file owns everything else, so adding a group is one entry here plus a
+ * regenerated registry/registry.schema.json, which schema.ts derives from
+ * these tuples (the registry-schema test writes it). The sidebar, prev and next
  * paging, and breadcrumbs all read the tree this builds. The decision record
  * is the "Component taxonomy" document in Linear.
  */
