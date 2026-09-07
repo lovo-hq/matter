@@ -40,6 +40,12 @@
   margin: var(--spacing-6) 0 var(--spacing-20);
 }
 
+/* A jump from the table of contents lands the section's title 24px below
+   the top of the viewport rather than hard against it. */
+.section {
+  scroll-margin-top: var(--spacing-6);
+}
+
 .sectionTitle {
   margin: 0 0 var(--spacing-4);
   font-size: var(--font-size-2xl);
