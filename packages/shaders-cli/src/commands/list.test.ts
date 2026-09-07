@@ -25,8 +25,11 @@ describe('runList', () => {
     await runList({ registry: FIXTURE_BASE, cliVersion: '0.0.0' }, { cwd: dir, log });
     const output = log.mock.calls.map((c) => c[0]).join('\n');
 
-    expect(output).toContain('synthetic-component');
-    expect(output).toContain('A tiny synthetic component');
+    // The whole line, so a reappearing suffix such as the old "tier 1" fails
+    // the test rather than slipping past a substring check.
+    expect(output).toContain(
+      'synthetic-component · A tiny synthetic component used by shaders-cli tests. Not shipped.',
+    );
   });
 
   it('reads shaders.config.json when --registry is not supplied', async () => {
