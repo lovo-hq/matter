@@ -1,5 +1,5 @@
-// `shaders-cli list`: prints the registry's component catalog (slug,
-// description, tier). Unlike the other commands it works without a
+// `shaders-cli list`: prints the registry's component catalog (slug and
+// description). Unlike the other commands it works without a
 // shaders.config.json — it falls back to the default registry URL so users
 // can browse before running init.
 import {
@@ -51,6 +51,6 @@ export async function runList(
   for (const [slug, entry] of entries) {
     const description = entry.description ?? '(no description)';
 
-    io.log(`${slug} · ${description} · tier ${entry.tier}`);
+    io.log(`${slug} · ${description}`);
   }
 }

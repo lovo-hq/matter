@@ -1,5 +1,5 @@
 // The registry's wire format and how to fetch it: registry.json is an index
-// mapping component slugs to their source file, npm dependencies, and tier;
+// mapping component slugs to their source file and npm dependencies;
 // component sources are fetched as plain text relative to the same base URL.
 import { readUrl } from './readUrl.js';
 
@@ -15,7 +15,6 @@ export interface RegistryEntry {
   description?: string;
   dependencies: string[];
   uses_primitives?: string[];
-  tier: 1 | 2 | 3;
 }
 
 export interface Registry {

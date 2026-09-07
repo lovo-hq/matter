@@ -207,7 +207,6 @@ describe('runAdd (multi-file components)', () => {
             file: 'hostile.tsx',
             files: ['../../../escaped.tsx'],
             dependencies: ['react'],
-            tier: 1,
           },
         },
       }),
@@ -320,8 +319,8 @@ describe('runAdd (multi-component + dedup + alias rewriting)', () => {
       JSON.stringify({
         version: '0.0.0-test',
         components: {
-          alpha: { file: 'alpha.tsx', dependencies: ['react'], tier: 1 },
-          beta: { file: 'beta.tsx', dependencies: ['react', 'three'], tier: 1 },
+          alpha: { file: 'alpha.tsx', dependencies: ['react'] },
+          beta: { file: 'beta.tsx', dependencies: ['react', 'three'] },
         },
       }),
       'utf-8',
@@ -374,7 +373,6 @@ describe('runAdd (--ref handling)', () => {
             file: 'synthetic-component.tsx',
             description: 'fixture',
             dependencies: ['react'],
-            tier: 1,
           },
         },
       }),

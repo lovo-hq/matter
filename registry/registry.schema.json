@@ -26,7 +26,7 @@
     },
     "entry": {
       "type": "object",
-      "required": ["file", "dependencies", "tier", "category"],
+      "required": ["file", "dependencies", "category"],
       "additionalProperties": false,
       "properties": {
         "file": {
@@ -54,10 +54,6 @@
           "description": "Tier 2 primitives the component builds on. Documentation only; the CLI does not read it.",
           "items": { "type": "string" },
           "uniqueItems": true
-        },
-        "tier": {
-          "description": "1 = polished component, 2 = primitive, 3 = recipe.",
-          "enum": [1, 2, 3]
         },
         "category": {
           "description": "The leaf group the docs sidebar files the component under. The label, tier, and order of each group live in apps/docs/src/content/taxonomy.ts; the CLI does not read it.",

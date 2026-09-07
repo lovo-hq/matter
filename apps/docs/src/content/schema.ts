@@ -48,7 +48,6 @@ export function parseFrontmatter(data: unknown, sourcePath: string): DocsFrontma
 
 const registryComponentSchema = z.object({
   description: z.string().min(1),
-  tier: z.number().int(),
   category: z.enum(CATEGORY_SLUGS),
   file: z.string().optional(),
   dependencies: z.array(z.string()).optional(),

@@ -5,24 +5,21 @@
       "file": "synthetic-component.tsx",
       "description": "A tiny synthetic component used by shaders-cli tests. Not shipped.",
       "dependencies": ["react"],
-      "uses_primitives": [],
-      "tier": 1
+      "uses_primitives": []
     },
     "nested-component": {
       "file": "nested-component/nested-component.tsx",
       "files": ["nested-component/shader.tsx", "utils/color.ts"],
       "description": "A multi-file synthetic component used by shaders-cli tests. Not shipped.",
       "dependencies": ["react"],
-      "uses_primitives": [],
-      "tier": 1
+      "uses_primitives": []
     },
     "sibling-component": {
       "file": "sibling-component/sibling-component.tsx",
       "files": ["sibling-component/shader.tsx", "utils/color.ts"],
       "description": "A second multi-file synthetic component sharing utils/color.ts. Not shipped.",
       "dependencies": ["react"],
-      "uses_primitives": [],
-      "tier": 1
+      "uses_primitives": []
     }
   }
 }
